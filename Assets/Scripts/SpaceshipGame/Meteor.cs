@@ -5,8 +5,7 @@ public class Meteor : MonoBehaviour
 {
     [SerializeField] private float speed = 3f;
     [SerializeField] private Rigidbody rb = null;
-    [SerializeField] private TextMeshPro text = null;
-
+    [SerializeField] private TextMeshPro text = null; 
     void FixedUpdate()
     {
         rb.MovePosition(transform.position + (Vector3.back * speed * Time.fixedDeltaTime));

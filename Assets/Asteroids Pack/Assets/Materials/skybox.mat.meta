@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 04d0bf4be9447154188d86f6e3b8dce9
-timeCreated: 1489020847
+guid: 18b6bf7c06173654ead94eda5ab1abee
+timeCreated: 1489021092
 licenseType: Store
 NativeFormatImporter:
   userData: 
@@ -11,5 +11,5 @@ AssetOrigin:
   productId: 84988
   packageName: Asteroids Pack
   packageVersion: 1.0
-  assetPath: Assets/Asteroids Pack/Assets/Prefabs/Asteroid 3.prefab
+  assetPath: Assets/Asteroids Pack/Assets/Materials/skybox.mat
   uploadId: 172354
