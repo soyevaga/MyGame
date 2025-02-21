@@ -144,7 +144,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1.75
+  m_Radius: 1.6
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-1527453954143284530
 MonoBehaviour:
@@ -161,7 +161,6 @@ MonoBehaviour:
   speed: 3
   rb: {fileID: 5428902}
   text: {fileID: 3390436208414887735}
-  tumble: 0.25
 --- !u!1 &153142
 GameObject:
   m_ObjectHideFlags: 0

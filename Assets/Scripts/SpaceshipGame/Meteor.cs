@@ -1,11 +1,10 @@
 using TMPro;
 using UnityEngine;
-
 public class Meteor : MonoBehaviour
 {
     [SerializeField] private float speed = 3f;
     [SerializeField] private Rigidbody rb = null;
-    [SerializeField] private TextMeshPro text = null; 
+    [SerializeField] private TextMeshPro text = null;
     void FixedUpdate()
     {
         rb.MovePosition(transform.position + (Vector3.back * speed * Time.fixedDeltaTime));
@@ -17,15 +16,14 @@ public class Meteor : MonoBehaviour
 
         if(p != null)
         {
-            GameManager.Instance.onGameOver.Invoke(); 
-
+            gameObject.SetActive(false);
+            GameManager.Instance.DestroyPlayer(p.gameObject);
         }
         else if(other.gameObject.tag == "Destroyer")
         {
             transform.parent.GetComponent<MeteorSpawner>().DeleteMeteor(gameObject);
         }
     }
-
     public void SetNumber(int n)
     {
         text.text = n.ToString();

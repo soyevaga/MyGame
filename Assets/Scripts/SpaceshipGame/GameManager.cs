@@ -2,6 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using Unity.VisualScripting;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -17,7 +19,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI objectiveText;
     [SerializeField] private TextMeshProUGUI usernameText;
     [SerializeField] private TextMeshProUGUI recordText;
+    [SerializeField] private TextMeshProUGUI punctuationText;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject explosionPrefab = null;
     private int currentPoints; 
     private int recordPoints;
     private string username;
@@ -45,21 +49,21 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetInt(username, 0);
         }
         recordPoints = PlayerPrefs.GetInt(username);
-        pointsText.text = "Puntos: " + currentPoints + "\n" + "RECORD: " + recordPoints;
+        pointsText.text = "Score: " + currentPoints + "\n" + "High Score: " + recordPoints;
         if (gameMode == mode.par)
         {
-            objectiveText.text = "¡Dispara a los pares!";
+            objectiveText.text = "Shoot the even numbers!";
         }
         else if (gameMode == mode.impar)
         {
-            objectiveText.text = "¡Dispara a los impares!";
+            objectiveText.text = "Shoot the odd numbers!";
         }
 
         usernameText.text = username;
     }
     void Update()
     {
-        pointsText.text = "Puntos: " + currentPoints + "\n" + "RECORD: " + recordPoints;
+        pointsText.text = "Score: " + currentPoints + "\n" + "High Score: " + recordPoints;
     }
 
     public void ModifyPoints(int points)
@@ -74,21 +78,39 @@ public class GameManager : MonoBehaviour
     public void gameOverAction()
     {
         Time.timeScale = 0f;
-        if(currentPoints> PlayerPrefs.GetInt(username))
+        if (currentPoints > PlayerPrefs.GetInt(username))
         {
             PlayerPrefs.SetInt(username, currentPoints);
-            recordText.text= "NEW RECORD: "+currentPoints;
+            recordPoints = currentPoints;
+            recordText.text = "NEW RECORD!";
         }
-        gameOverPanel.SetActive(true); 
+        pointsText.gameObject.SetActive(false);
+        usernameText.gameObject.SetActive(false);
+        objectiveText.gameObject.SetActive(false);
+        punctuationText.text = "Score: " + currentPoints + "\n" + "High Score: " + recordPoints;
+        gameOverPanel.SetActive(true);
     }
 
+    public void DestroyPlayer(GameObject player)
+    {
+        GameObject explosion = Instantiate(explosionPrefab);
+        explosion.transform.position = player.transform.position;
+        player.SetActive(false);
+        StartCoroutine(GameOverSequence(explosion));
+    }
+    private IEnumerator GameOverSequence(GameObject explosion)
+    {
+        yield return new WaitForSeconds(1f);
+        onGameOver.Invoke();
+        explosion.SetActive(false);
+    }
     public void MenuButton()
     {
         SceneManager.LoadScene("MenuScene");
     }
     public void ReplayButton()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("SpaceScene");
     }
 
     public mode GameMode()
