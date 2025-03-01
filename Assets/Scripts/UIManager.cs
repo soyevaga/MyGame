@@ -17,11 +17,24 @@ public class UIManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+    private void Start()
+    {
+        username = PlayerPrefs.GetString("username");
+        if (PlayerPrefs.GetInt("ShowGamesPanel", 0) == 1)
+        {
+            PlayerPrefs.SetInt("ShowGamesPanel", 0); 
+            PlayerPrefs.Save();
+            ShowGames();
+        }
+        else
+        {
+            ShowMenu(); 
         }
     }
     public void GameScene()
@@ -34,7 +47,7 @@ public class UIManager : MonoBehaviour
         {
             username = usernameInput.text;
             PlayerPrefs.SetString("username",username); 
-            PlayerPrefs.Save();         
+            PlayerPrefs.Save();
             ShowGames();
         }   
     }
@@ -49,9 +62,16 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene("SpaceScene");
     }
 
-    public void BackToMenu()
+    public void CardsGame()
     {
-        SceneManager.LoadScene("MenuScene");
+        SceneManager.LoadScene("CardsScene");
+    }
+
+    public void ShowMenu()
+    {
+        menuPanel.SetActive(true);
+        settingsPanel.SetActive(false);
+        gamesPanel.SetActive(false);
     }
 
     public void ShowGames()
