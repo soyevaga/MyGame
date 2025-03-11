@@ -26,7 +26,27 @@ public class CardSpawner : MonoBehaviour
                 card.FlipCard(3f);
             }
         }
-        
+    }
+    public void Exchange(int times)
+    {
+        List<GameObject> cards = pool.GetActiveObjs();
+        HashSet<int> indx = new HashSet<int>();
+        for (int i = 0; i < times; i++)
+        {
+            Card card1 = cards[findIndex(indx,cards.Count)].GetComponent<Card>();
+            Card card2 = cards[findIndex(indx, cards.Count)].GetComponent<Card>();
+            card1.ExchangeCards(card2);
+        }
+    }
+    private int findIndex(HashSet<int> set, int max)
+    {
+        int aux = Random.Range(0, max);
+        while (set.Contains(aux))
+        {
+            aux = Random.Range(0, max);
+        }
+        set.Add(aux);
+        return aux;
     }
     public void DeleteCard(Card card)
     {

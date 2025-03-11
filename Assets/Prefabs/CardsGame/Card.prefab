@@ -183,6 +183,7 @@ MonoBehaviour:
   backCard: {fileID: 74903623985265961}
   backStandard: {fileID: 2100000, guid: c8eaaa41d126cc74e8d0527eb109f028, type: 2}
   backSelected: {fileID: 2100000, guid: b71f58f0cd5a3594e8f7d5f32277d1e9, type: 2}
+  isFaceDown: 1
 --- !u!65 &2336345391803619295
 BoxCollider:
   m_ObjectHideFlags: 0

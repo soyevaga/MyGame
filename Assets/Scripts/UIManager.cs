@@ -67,6 +67,12 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene("CardsScene");
     }
 
+    public void TilesGame()
+    {
+        SceneManager.LoadScene("TilesScene");
+    }
+
+
     public void ShowMenu()
     {
         menuPanel.SetActive(true);

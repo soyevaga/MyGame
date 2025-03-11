@@ -10,6 +10,40 @@ public class Card : MonoBehaviour
     [SerializeField] private bool isFaceDown = true;
     private bool isRotating = false;
     
+    public void ExchangeCards(Card other)
+    {        
+        StartCoroutine(Exchange(gameObject,other.gameObject));
+    }
+
+    private IEnumerator Exchange(GameObject c1, GameObject c2)
+    {
+        yield return new WaitForSeconds(4.2f);
+
+        Vector3 pos1 = c1.transform.position;
+        Vector3 pos2 = c2.transform.position;
+        Vector3 center = (pos1 + pos2) / 2;
+        float radius = Vector3.Distance(pos1, pos2) / 2;
+        Vector3 perpendicular = (pos2 - pos1).normalized;
+        Vector3 normal = Vector3.Cross(perpendicular, Vector3.up);
+        Vector3 mid1 = center + normal * radius + Vector3.forward * 0.5f + Vector3.up * 0.2f; ;
+        Vector3 mid2 = center - normal * radius + Vector3.forward * 0.5f + Vector3.up * 0.2f; ;
+        Vector3[] path1 = new Vector3[] { pos1, mid1, pos2 };
+        Vector3[] path2 = new Vector3[] { pos2, mid2, pos1 };
+
+        iTween.MoveTo(c1, iTween.Hash(
+            "path", path1,
+            "time", 2f,
+            "easetype", iTween.EaseType.easeInOutSine
+        ));
+
+        iTween.MoveTo(c2, iTween.Hash(
+            "path", path2,
+            "time", 2f,
+            "easetype", iTween.EaseType.easeInOutSine
+        ));
+        yield return new WaitForSeconds(2f);
+
+    }
     public void SetMaterial(Material material)
     {
         frontCard.material = material;
@@ -45,7 +79,7 @@ public class Card : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         iTween.RotateBy(gameObject, iTween.Hash(
             "z", dir*0.5f,
-            "easeType", "easeInOutQuart",
+            "easeType", iTween.EaseType.easeInOutQuart,
             "time", 0.8f
         ));
         yield return new WaitForSeconds(0.8f);

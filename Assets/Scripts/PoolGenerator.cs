@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Data.Common;
 using UnityEngine;
 
 public class PoolGenerator : MonoBehaviour
@@ -33,6 +32,20 @@ public class PoolGenerator : MonoBehaviour
     public void DeleteObject(GameObject obj)
     {
         obj.SetActive(false);
+    }
+
+    public List<GameObject> GetActiveObjs()
+    {
+        List < GameObject > active = new List<GameObject>();
+
+        foreach (GameObject obj in pool)
+        {
+            if (obj.activeInHierarchy)
+            {
+                active.Add(obj);
+            }
+        }
+        return active;
     }
 
 }
