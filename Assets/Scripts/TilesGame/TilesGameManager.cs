@@ -9,6 +9,7 @@ public class TilesGameManager : GameManager
     [SerializeField] private GridManager gridManager;
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private BotSpawner botSpawner;
     [SerializeField] public UnityEvent onGameOver;
     private void Awake()
     {
@@ -26,6 +27,7 @@ public class TilesGameManager : GameManager
     {
         base.Start();
         gridManager.GenerateGrid();
+        botSpawner.Spawner(4,1);
     }
     void Update()
     {

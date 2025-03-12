@@ -21,6 +21,7 @@ public class CardsGameManager : GameManager
     [SerializeField] private CardSpawner cardSpawner;
     [SerializeField] public float totalTime = 20f;
     [SerializeField] public UnityEvent onNextLevel;
+    [SerializeField] public UnityEvent onGameOver;
     private float remainingTime;
     private int currentLevel;
     private int[] cardsNumber = { 4, 8, 12, 14, 16, 18, 20, 22, 22, 22};
@@ -61,7 +62,7 @@ public class CardsGameManager : GameManager
         remainingTime-= Time.deltaTime;
         if(remainingTime <= 0)
         {
-            GameOver();
+            onGameOver.Invoke();
         }
         if (selectedCardsCount == 2)
         {
@@ -152,7 +153,7 @@ public class CardsGameManager : GameManager
             return false;
         }
     }
-    private void GameOver()
+    public void GameOver()
     {
         Time.timeScale = 0f;
         timeImage.gameObject.SetActive(false);
