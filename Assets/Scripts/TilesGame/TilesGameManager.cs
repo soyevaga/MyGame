@@ -2,14 +2,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 public class TilesGameManager : GameManager
 {
     public static TilesGameManager Instance { get; private set; }
 
-    [SerializeField] private GridManager gridManager;
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private BotSpawner botSpawner;
+    [SerializeField] private Button[] buttons;
     [SerializeField] public UnityEvent onGameOver;
     private void Awake()
     {
@@ -26,12 +27,22 @@ public class TilesGameManager : GameManager
     void Start()
     {
         base.Start();
-        gridManager.GenerateGrid();
-        botSpawner.Spawner(4,1);
+        AssignButtonIDs();
+        GridManager.Instance.GenerateGrid(1);
+        botSpawner.Spawner(4,2);
     }
     void Update()
     {
-        pointsText.text = "";
+        if (Input.GetMouseButtonDown(0)) 
+        {
+            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Button button = ToggledButton();
+            if (button != null)
+            {
+                GridManager.Instance.ChangeTile(mouseWorldPos, button.GetID());
+            }
+            
+        }
     }
 
     public void ModifyPoints(int points)
@@ -41,5 +52,29 @@ public class TilesGameManager : GameManager
     public void ReplayButton()
     {
         SceneManager.LoadScene("TilesScene");
+    }
+
+    public Button ToggledButton()
+    {
+        Button toggled = null;
+        foreach (Button button in buttons)
+        {
+            if (button.IsToggled())
+            {
+                toggled = button;   
+                break;
+            }
+        }
+        return toggled;
+    }
+
+    public void AssignButtonIDs()
+    {
+        int id = 0;
+        foreach(Button button in buttons)
+        {
+            button.SetID(id);
+            id++;
+        }
     }
 }

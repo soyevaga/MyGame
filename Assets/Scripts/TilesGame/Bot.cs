@@ -5,17 +5,18 @@ using UnityEngine.Tilemaps;
 
 public class Bot : MonoBehaviour
 {
+
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private float speed;
-    private Tilemap tilemap;
     private Vector3[] directions = {new Vector3(0, 25.6f, 0), new Vector3(0, -25.6f, 0), new Vector3(25.6f,0, 0), new Vector3(-25.6f, 0, 0) };
+    private BotSpawner.type myType;
     void Start()
     {
     }
 
     void Update()
     {
-        Vector3 newPosition = transform.position + directions[0];
+        Vector3 newPosition = transform.position + directions[1];
 
         if (GridManager.Instance.HasTile(newPosition))
         {
@@ -28,12 +29,9 @@ public class Bot : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, newPosition, speed * Time.deltaTime);
     }
     
-    public void SetSprite(Sprite sprite)
+    public void SetSprite(Sprite sprite, BotSpawner.type type)
     {
         spriteRenderer.sprite = sprite;
-    }
-    public void SetTilemap(Tilemap map)
-    {
-        tilemap = map;
+        myType = type;
     }
 }
