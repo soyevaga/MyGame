@@ -5,23 +5,14 @@ using UnityEngine.Tilemaps;
 
 public class BotSpawner : MonoBehaviour
 {
-    public enum type
-    {
-        desert,
-        woods,
-        island,
-        volcano
-    }
-
     [SerializeField] private PoolGenerator pool;
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private float cellSize;
     [SerializeField] private Sprite[] sprites = new Sprite[4];
-    private type[] types;
+    private int[] types = { 1,2,3,4};
     private Vector3 initialPos;
     private void Start()
     {
-        types = (type[]) Enum.GetValues(typeof(type));
         initialPos = new Vector3(0 + cellSize/2, GridManager.Instance.GetHeight() * cellSize + cellSize/2, -1);
     }
     public void Spawner(int typesNum, int botsOfEachType)

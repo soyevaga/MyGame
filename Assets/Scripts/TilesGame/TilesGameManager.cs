@@ -29,7 +29,7 @@ public class TilesGameManager : GameManager
         base.Start();
         AssignButtonIDs();
         GridManager.Instance.GenerateGrid(1);
-        botSpawner.Spawner(4,2);
+        botSpawner.Spawner(4,1);
     }
     void Update()
     {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -8,11 +9,12 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private Tile[] mainTiles;
-    [SerializeField] private Tile[] moveTiles;
-    [SerializeField] private Tile[] goalTiles;
+    [SerializeField] private List<Tile> moveTiles;
+    [SerializeField] private List<Tile> goalTiles;
     [SerializeField] private int width = 12;
     [SerializeField] private int height = 9;
     [SerializeField] private float cellSize;
+    private Vector3[] directions = { new Vector3(0, -25.6f, 0),  new Vector3(-25.6f, 0, 0), new Vector3(25.6f, 0, 0), new Vector3(0, 25.6f, 0)};
     private void Awake()
     {
         if (Instance == null)
@@ -23,10 +25,6 @@ public class GridManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
-    private void Update()
-    {
-        
     }
     public int GetWidth()
     {
@@ -43,7 +41,7 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                Tile selectedTile = mainTiles[UnityEngine.Random.Range(0,2)];  
+                Tile selectedTile = mainTiles[0];  
                 Vector3Int cellPosition = new Vector3Int(x, y, 0);  
                 tilemap.SetTile(cellPosition, selectedTile);  
             }
@@ -56,8 +54,22 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public bool HasTile(Vector3 pos)
+    public bool HasValidTile(Vector3 pos, int index)
     {
+        pos.y -= cellSize / 2;
+        Vector3Int cellPosition = tilemap.WorldToCell(pos);
+        TileBase tileBase = tilemap.GetTile(cellPosition);
+
+        if (tileBase != null)
+        {
+            Tile tile = tilemap.GetTile<Tile>(cellPosition);
+            if (tile == mainTiles[1]) return true;
+            if (goalTiles.Contains(tile))
+            {
+                int tileIndex = goalTiles.IndexOf(tile);
+                if (tileIndex != index - 1) return false;
+            }
+        }
         return true;
     }
 
@@ -66,7 +78,6 @@ public class GridManager : MonoBehaviour
         pos.y -= cellSize/2;
         Vector3Int cellPosition = tilemap.WorldToCell(pos);
         TileBase clickedTile = tilemap.GetTile(cellPosition);
-
         if (clickedTile != null)
         {
             Tile tile = tilemap.GetTile<Tile>(cellPosition);
@@ -74,11 +85,47 @@ public class GridManager : MonoBehaviour
             {
                 tilemap.SetTile(cellPosition, mainTiles[0]);
             }
-            else if (tile != mainTiles[1] && tile != goalTiles[0] && tile != goalTiles[1] && tile != goalTiles[2] && tile != goalTiles[3])
+            else if (tile != mainTiles[1] && !goalTiles.Contains(tile))
             {
                 tilemap.SetTile(cellPosition, moveTiles[tileIndex]);
             }
         }
+    }
+
+    public bool TileIsMyType(Vector3 pos, int index)
+    {
+        pos.y -= cellSize / 2;
+        Vector3Int cellPosition = tilemap.WorldToCell(pos);
+        TileBase tileBase = tilemap.GetTile(cellPosition);
+        if (tileBase != null)
+        {
+            Tile tile = tilemap.GetTile<Tile>(cellPosition);
+            if(tile == mainTiles[0] || tile == mainTiles[1]) return false;
+            if (moveTiles.Contains(tile))
+            {
+                int tileIndex = moveTiles.IndexOf(tile);
+                if (tileIndex / 4 == 0 || tileIndex / 4 == index) return true;
+            }            
+        }
+        return false;
+    }
+
+    public Vector3 GetTileDirection(Vector3 pos)
+    {
+        pos.y -= cellSize / 2;
+        Vector3Int cellPosition = tilemap.WorldToCell(pos);
+        TileBase tileBase = tilemap.GetTile(cellPosition);
+
+        if (tileBase != null)
+        {
+            Tile tile = tilemap.GetTile<Tile>(cellPosition);
+            if (moveTiles.Contains(tile))
+            {
+                int dirIndex = moveTiles.IndexOf(tile)%4;
+                return directions[dirIndex];
+            }
+        }
+        return new Vector3(0,0,0);
     }
 }
 
