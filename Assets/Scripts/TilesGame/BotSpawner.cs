@@ -11,35 +11,46 @@ public class BotSpawner : MonoBehaviour
     [SerializeField] private Sprite[] sprites = new Sprite[4];
     private int[] types = { 1,2,3,4};
     private Vector3 initialPos;
+    private bool isSpawning=false;
     private void Start()
     {
-        initialPos = new Vector3(0 + cellSize/2, GridManager.Instance.GetHeight() * cellSize + cellSize/2, -1);
+        initialPos = new Vector3(0 + cellSize/2, GridManager.Instance.GetHeight() * cellSize - cellSize/2, -1);
     }
-    public void Spawner(int typesNum, int botsOfEachType)
+    public void Spawner(int typesNum)
     {
-        StartCoroutine(Spawn(typesNum, botsOfEachType));
+        StartCoroutine(Spawn(typesNum));
     }
 
-    private IEnumerator Spawn(int typesNum, int botsOfEachType)
+    private IEnumerator Spawn(int typesNum)
     {
-        for (int i = 0; i < typesNum; i++)
+        isSpawning = true;
+        for (int i = 0; i < typesNum && isSpawning; i++)
         {
-            for (int j = 0; j < botsOfEachType; j++)
+            GameObject newBot = pool.GetObject();
+            if (newBot != null)
             {
-                GameObject newBot = pool.GetObject();
-                if (newBot != null)
-                {
-                    Bot bot = newBot.GetComponent<Bot>();
-                    bot.SetSprite(sprites[i], types[i]);
-                    bot.transform.position = initialPos;
-                    bot.FirstMove();
-                }
-                yield return new WaitForSeconds(3f);
+                Bot bot = newBot.GetComponent<Bot>();
+                bot.SetSprite(sprites[i], types[i]);
+                bot.transform.position = initialPos;
+                bot.FirstMove();
             }
+            yield return new WaitForSeconds(3f);
+            
         }
+        isSpawning = false;
     }
     public void DeleteBot(Bot bot)
     {
         pool.DeleteObject(bot.gameObject);
+    }
+    public void DeleteAllBots()
+    {
+        StartCoroutine(DeleteAll());
+    }
+    private IEnumerator DeleteAll()
+    {
+        isSpawning = false;
+        pool.DeleteAllObjects();
+        yield return new WaitForSeconds(1f);
     }
 }

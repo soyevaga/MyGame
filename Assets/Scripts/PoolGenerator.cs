@@ -33,7 +33,13 @@ public class PoolGenerator : MonoBehaviour
     {
         obj.SetActive(false);
     }
-
+    public void DeleteAllObjects()
+    {
+        foreach (GameObject obj in pool)
+        {
+            obj.SetActive(false);
+        }
+    }
     public List<GameObject> GetActiveObjs()
     {
         List < GameObject > active = new List<GameObject>();

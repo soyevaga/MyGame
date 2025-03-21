@@ -12,7 +12,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private List<Tile> moveTiles;
     [SerializeField] private List<Tile> goalTiles;
     [SerializeField] private int width = 12;
-    [SerializeField] private int height = 9;
+    [SerializeField] private int height = 10;
     [SerializeField] private float cellSize;
     private Vector3[] directions = { new Vector3(0, -25.6f, 0),  new Vector3(-25.6f, 0, 0), new Vector3(25.6f, 0, 0), new Vector3(0, 25.6f, 0)};
     private Map[] maps;
@@ -64,6 +64,133 @@ public class GridManager : MonoBehaviour
                             0, 0, 0, 0, //island
                             0, 0, 0, 0  //volcano
                         }
+                ),
+                new Map(new int[,]
+                        {
+                            { 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1 },
+                            { 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1 },
+                            { 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0 },
+                            { 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1 },
+                            { 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1 },
+                            { 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1 },
+                            { 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1 },
+                            { 0, 1, 1, 0, 0, 1, 1, 0, 0, 2, 1, 0 },
+                            { 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1 }
+                        },
+                        new int[]
+                        {
+                            3, 0, 3, 0, //general
+                            1, 0, 2, 0, //desert
+                            0, 0, 0, 0, //woods
+                            0, 0, 0, 0, //island
+                            0, 0, 0, 0  //volcano
+                        }
+                ),
+                new Map(new int[,]
+                        {
+                            { 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
+                            { 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1 },
+                            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1 },
+                            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0 },
+                            { 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0 },
+                            { 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0 },
+                            { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }
+                        },
+                        new int[]
+                        {
+                            0, 0, 1, 0, //general
+                            0, 0, 1, 1, //desert
+                            0, 0, 1, 0, //woods
+                            0, 0, 0, 0, //island
+                            0, 0, 0, 0  //volcano
+                        }
+                ),
+                new Map(new int[,]
+                        {
+                            { 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
+                            { 0, 1, 0, 1, 0, 0, 1, 1, 3, 1, 1, 1 },
+                            { 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0 },
+                            { 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1 },
+                            { 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0 },
+                            { 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0 },
+                            { 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+                            { 1, 2, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0 },
+                            { 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0 }
+                        },
+                        new int[]
+                        {
+                            1, 0, 1, 1, //general
+                            1, 0, 0, 0, //desert
+                            0, 0, 2, 1, //woods
+                            0, 0, 0, 0, //island
+                            0, 0, 0, 0  //volcano
+                        }
+                ),
+                new Map(new int[,]
+                        {
+                            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },
+                            { 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0 },
+                            { 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+                            { 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 4 },
+                            { 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 1, 1, 3, 0, 0, 1, 0 },
+                            { 0, 0, 0, 1, 0, 1, 0, 1, 0, 2, 0, 0 }
+                        },
+                        new int[]
+                        {
+                            1, 0, 1, 0, //general
+                            0, 0, 1, 0, //desert
+                            0, 1, 0, 0, //woods
+                            1, 0, 1, 0, //island
+                            0, 0, 0, 0  //volcano
+                        }
+
+                ),
+                new Map(new int[,]
+                        {
+                            { 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4 },
+                            { 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1 },
+                            { 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+                            { 1, 0, 0, 1, 0, 0, 0, 5, 0, 0, 0, 0 },
+                            { 1, 3, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0 },
+                            { 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0 },
+                            { 0, 2, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1 },
+                            { 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0 }
+                        },
+                        new int[]
+                        {
+                            1, 0, 1, 0, //general
+                            1, 1, 0, 0, //desert
+                            1, 0, 0, 0, //woods
+                            0, 0, 1, 1, //island
+                            1, 0, 0, 0  //volcano
+                        }
+                ), 
+                new Map(new int[,]
+                        {
+                            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 },
+                            { 1, 1, 1, 0, 1, 3, 1, 0, 0, 0, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1 },
+                            { 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+                            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
+                            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0 },
+                            { 0, 0, 1, 1, 0, 1, 0, 0, 0, 4, 1, 0 },
+                            { 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
+                            { 1, 1, 0, 1, 5, 0, 0, 0, 0, 1, 1, 0 }
+                        },
+                        new int[]
+                        {
+                            2, 0, 3, 0, //general
+                            0, 1, 0, 1, //desert
+                            0, 0, 0, 1, //woods
+                            0, 0, 0, 0, //island
+                            1, 0, 0, 0  //volcano
+                        }
                 )
             };
 
@@ -88,21 +215,23 @@ public class GridManager : MonoBehaviour
         int[,] matrix = maps[level].GetMatrix();
         for (int x = 0; x < width; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = 1; y < height; y++)
             {
                 Tile selectedTile = null;
-                if (matrix[y,x] == 1 || matrix[y, x] ==0)
+                if (matrix[y-1,x] == 1 || matrix[y-1, x] ==0)
                 {
-                    selectedTile = mainTiles[matrix[y, x]];
+                    selectedTile = mainTiles[matrix[y-1, x]];
                 }
                 else
                 {
-                    selectedTile= goalTiles[matrix[y, x] -2];
+                    selectedTile= goalTiles[matrix[y - 1, x] -2];
                 }
                 Vector3Int cellPosition = new Vector3Int(x, height-1-y, 0);  
                 tilemap.SetTile(cellPosition, selectedTile);  
             }
         }
+        Vector3Int iniPosition = new Vector3Int(0, height-1, 0);
+        tilemap.SetTile(iniPosition, mainTiles[2]);
     }
     public bool HasTile(Vector3 pos, int index)
     {

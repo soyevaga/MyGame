@@ -11,8 +11,6 @@ public class Bot : MonoBehaviour
     public void FirstMove()
     {
         currentDirection= new Vector3(0, -25.6f, 0);
-
-        Debug.Log(transform.position);
         Vector3 newPosition = transform.position + currentDirection;
         StartCoroutine(Move(newPosition));
 
@@ -73,7 +71,6 @@ public class Bot : MonoBehaviour
             yield return null;
         }
         isMoving = false;
-        Debug.Log(this);
         TilesGameManager.Instance.BotOutOfBounds(this);
     }
 
