@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,11 +6,18 @@ public class Button : MonoBehaviour
 {
     private bool isToggled;
     private int id;
+    private int number=0;
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color toggledColor = Color.green;
+    [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] private Image image;
     private void Start()
     {
         isToggled = false;
+    }
+    private void Update()
+    {
+        text.text = number + "";
     }
     public void ButtonColor()
     {
@@ -53,6 +61,29 @@ public class Button : MonoBehaviour
     public int GetID()
     {
         return id;  
+    }
+
+    public void SetNumberOnce(int number)
+    {
+        this.number = number;
+        if (number != 0)
+        {
+            text.gameObject.SetActive(true);
+            image.gameObject.SetActive(true);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
+    public void SetNumber(int sum)
+    {
+        number +=sum;
+    }
+    public int GetNumber()
+    {
+        return number;
     }
 }
 

@@ -32,9 +32,14 @@ public class BotSpawner : MonoBehaviour
                     Bot bot = newBot.GetComponent<Bot>();
                     bot.SetSprite(sprites[i], types[i]);
                     bot.transform.position = initialPos;
+                    bot.FirstMove();
                 }
                 yield return new WaitForSeconds(3f);
             }
         }
+    }
+    public void DeleteBot(Bot bot)
+    {
+        pool.DeleteObject(bot.gameObject);
     }
 }
