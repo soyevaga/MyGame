@@ -42,7 +42,7 @@ public class CardsGameManager : GameManager
         }
     }
 
-    void Start()
+    new void Start()
     {
         if (!PlayerPrefs.HasKey(username))
         {

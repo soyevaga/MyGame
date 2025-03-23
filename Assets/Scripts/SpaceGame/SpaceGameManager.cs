@@ -36,7 +36,7 @@ public class SpaceGameManager : GameManager
         }
     }
 
-    void Start()
+    new void Start()
     {
         base.Start();
         Time.timeScale = 1f;
