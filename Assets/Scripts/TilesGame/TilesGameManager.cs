@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 public class TilesGameManager : GameManager
 {
@@ -9,10 +10,12 @@ public class TilesGameManager : GameManager
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private TextMeshProUGUI timeText;
     [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private TextMeshProUGUI gameOverTimeText;
+    [SerializeField] private TextMeshProUGUI gameOverRecordText;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject goalsInfo;
+    [SerializeField] private GameObject newRecord;
     [SerializeField] private BotSpawner botSpawner;
-    [SerializeField] public float totalTime = 300f;
     [SerializeField] private Button[] buttons;
     [SerializeField] public UnityEvent onRestartLevel;
     [SerializeField] public UnityEvent onNextLevel;
@@ -39,8 +42,12 @@ public class TilesGameManager : GameManager
     new void Start()
     {
         base.Start();
+        if (!PlayerPrefs.HasKey(username + "tiles"))
+        {
+            PlayerPrefs.SetFloat(username + "tiles", float.MaxValue);
+            PlayerPrefs.Save();
+        }
         isGameOver = false;
-        remainingTime = totalTime;
         Time.timeScale = 1f;
         currentLevel = 7;
         InstantiateGame();
@@ -49,14 +56,8 @@ public class TilesGameManager : GameManager
     {
         if (!isGameOver)
         {
-            remainingTime -= Time.deltaTime;
-            if (remainingTime <= 0)
-            {
-                onGameOver.Invoke();
-            }
-            int minutes = Mathf.FloorToInt(remainingTime / 60);
-            int seconds = Mathf.FloorToInt(remainingTime % 60);
-            timeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+            remainingTime += Time.deltaTime;
+            timeText.text = TimeFormat(remainingTime);
             if (currentSaved == botTypesPerLevel[currentLevel])
             {
                 onNextLevel.Invoke();
@@ -83,8 +84,8 @@ public class TilesGameManager : GameManager
                 }
 
             }
-            levelText.text = "Level: " + (currentLevel + 1);
-            pointsText.text = "Saved: " + currentSaved;
+            levelText.text = "Nivel " + (currentLevel + 1);
+            pointsText.text = "Salvados: " + currentSaved;
         }
     }
     public void nextLevel()
@@ -117,6 +118,18 @@ public class TilesGameManager : GameManager
         pointsText.gameObject.SetActive(false);
         usernameText.gameObject.SetActive(false);
         goalsInfo.SetActive(false);
+        if (remainingTime < PlayerPrefs.GetFloat(username+"tiles"))
+        {
+            PlayerPrefs.SetFloat(username+"tiles", remainingTime);
+            PlayerPrefs.Save();
+            newRecord.SetActive(true);
+        }
+        else
+        {
+            newRecord.SetActive(false);
+        }
+        gameOverRecordText.text= TimeFormat(PlayerPrefs.GetFloat(username+"tiles"));
+        gameOverTimeText.text = TimeFormat(remainingTime);
         gameOverPanel.SetActive(true);
     }
     public void ReplayButton()
@@ -172,5 +185,12 @@ public class TilesGameManager : GameManager
     public void AddDead()
     {
         currentDead++;
+    }
+
+    private string TimeFormat(float time)
+    {
+        int minutes = Mathf.FloorToInt(time / 60);
+        int seconds = Mathf.FloorToInt(time % 60);
+        return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 }

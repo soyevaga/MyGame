@@ -44,9 +44,10 @@ public class CardsGameManager : GameManager
 
     new void Start()
     {
-        if (!PlayerPrefs.HasKey(username))
+        if (!PlayerPrefs.HasKey(username + "cards"))
         {
-            PlayerPrefs.SetInt(username, int.MaxValue);
+            PlayerPrefs.SetInt(username + "cards", int.MaxValue);
+            PlayerPrefs.Save();
         }
         Time.timeScale = 1f;
         selectedCards = new HashSet<Card> ();
@@ -162,9 +163,10 @@ public class CardsGameManager : GameManager
         pointsText.gameObject.SetActive(false);
         usernameText.gameObject.SetActive(false);
         gameOverPanel.SetActive(true); 
-        if (misses < PlayerPrefs.GetInt(username))
+        if (misses < PlayerPrefs.GetInt(username + "cards"))
         {
-            PlayerPrefs.SetInt(username, misses);
+            PlayerPrefs.SetInt(username + "cards", misses);
+            PlayerPrefs.Save();
         }
     }
     public void ReplayButton()

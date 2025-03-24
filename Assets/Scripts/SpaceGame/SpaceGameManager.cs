@@ -41,11 +41,12 @@ public class SpaceGameManager : GameManager
         base.Start();
         Time.timeScale = 1f;
         currentPoints = 0;
-        if (!PlayerPrefs.HasKey(username))
+        if (!PlayerPrefs.HasKey(username+"space"))
         {
-            PlayerPrefs.SetInt(username, 0);
+            PlayerPrefs.SetInt(username+"space", 0);
+            PlayerPrefs.Save();
         }
-        recordPoints = PlayerPrefs.GetInt(username);
+        recordPoints = PlayerPrefs.GetInt(username + "space");
         pointsText.text = "Score: " + currentPoints + "\n" + "High Score: " + recordPoints;
         if (gameMode == mode.par)
         {
@@ -74,9 +75,10 @@ public class SpaceGameManager : GameManager
     public void gameOverAction()
     {
         Time.timeScale = 0f;
-        if (currentPoints > PlayerPrefs.GetInt(username))
+        if (currentPoints > PlayerPrefs.GetInt(username + "space"))
         {
-            PlayerPrefs.SetInt(username, currentPoints);
+            PlayerPrefs.SetInt(username + "space", currentPoints);
+            PlayerPrefs.Save();
             recordPoints = currentPoints;
             recordText.text = "NEW RECORD!";
         }
