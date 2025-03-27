@@ -1,7 +1,8 @@
-using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class BotSpawner : MonoBehaviour
 {
@@ -53,4 +54,5 @@ public class BotSpawner : MonoBehaviour
         pool.DeleteAllObjects();
         yield return new WaitForSeconds(1f);
     }
+
 }

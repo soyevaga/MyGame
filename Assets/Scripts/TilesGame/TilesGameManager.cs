@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Rendering;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 public class TilesGameManager : GameManager
 {
@@ -15,7 +15,9 @@ public class TilesGameManager : GameManager
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject goalsInfo;
     [SerializeField] private GameObject newRecord;
+    [SerializeField] private GameObject speed;
     [SerializeField] private BotSpawner botSpawner;
+    [SerializeField] private Slider speedSlider;
     [SerializeField] private Button[] buttons;
     [SerializeField] public UnityEvent onRestartLevel;
     [SerializeField] public UnityEvent onNextLevel;
@@ -27,6 +29,7 @@ public class TilesGameManager : GameManager
     private int currentDead;
     private bool isGameOver;
     private int[] botTypesPerLevel = {1, 1, 1, 2, 2, 3, 4, 4};
+    private float[] timeScales = { 0.5f, 1f, 2f };
     private void Awake()
     {
         if (Instance == null)
@@ -118,6 +121,7 @@ public class TilesGameManager : GameManager
         pointsText.gameObject.SetActive(false);
         usernameText.gameObject.SetActive(false);
         goalsInfo.SetActive(false);
+        speed.SetActive(false);
         if (remainingTime < PlayerPrefs.GetFloat(username+"tiles"))
         {
             PlayerPrefs.SetFloat(username+"tiles", remainingTime);
@@ -192,5 +196,10 @@ public class TilesGameManager : GameManager
         int minutes = Mathf.FloorToInt(time / 60);
         int seconds = Mathf.FloorToInt(time % 60);
         return string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+
+    public void SetSpeed()
+    {
+        Time.timeScale = timeScales[(int)speedSlider.value];
     }
 }

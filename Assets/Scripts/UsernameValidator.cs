@@ -25,7 +25,7 @@ public class UsernameValidator : MonoBehaviour
         else if (!Regex.IsMatch(input, validCharactersPattern))
         {
             usernameInput.text = Regex.Replace(input, @"[^a-zA-Z0-9_.]", "");
-            warningText.text = "Only numbers, letters and symbols _ . are accepted";
+            warningText.text = "Solo letras, números, '.' y '_'";
         }
         else
         {

@@ -11,6 +11,8 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Tile[] mainTiles;
     [SerializeField] private List<Tile> moveTiles;
     [SerializeField] private List<Tile> goalTiles;
+    [SerializeField] private GameObject[] goals;
+    [SerializeField] private GameObject[] icons;
     [SerializeField] private int width = 12;
     [SerializeField] private int height = 8;
     [SerializeField] private float cellSize;
@@ -166,8 +168,8 @@ public class GridManager : MonoBehaviour
                 ), 
                 new Map(new int[,]
                         {
-                            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 },
-                            { 1, 1, 1, 0, 1, 3, 1, 0, 0, 0, 1, 0 },
+                            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1 },
+                            { 0, 1, 1, 0, 1, 3, 1, 0, 0, 0, 1, 0 },
                             { 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1 },
                             { 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
                             { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
@@ -203,6 +205,7 @@ public class GridManager : MonoBehaviour
     }
     public void GenerateGrid()
     {
+        HideObjects();  
         int level = TilesGameManager.Instance.GetCurrentLevel();
         int[,] matrix = maps[level].GetMatrix();
         for (int x = 0; x < width; x++)
@@ -217,6 +220,7 @@ public class GridManager : MonoBehaviour
                 else
                 {
                     selectedTile= goalTiles[matrix[y-1, x] -2];
+                    goals[matrix[y - 1, x] - 2].SetActive(true);
                 }
                 Vector3Int cellPosition = new Vector3Int(x, height-1-y, 0);  
                 tilemap.SetTile(cellPosition, selectedTile);  
@@ -224,28 +228,30 @@ public class GridManager : MonoBehaviour
         }
         Vector3Int iniPosition = new Vector3Int(0, height-1, 0);
         tilemap.SetTile(iniPosition, mainTiles[2]);
+        int[] arrows = maps[level].GetArrows();
+        bool arrowFound = false;
+        for(int i=0; i<arrows.Length;i++)
+        {
+            if(arrows[i] != 0) arrowFound = true;
+            if (i % 4 == 3)
+            {
+                if(arrowFound) icons[i/4].SetActive(true);
+                arrowFound = false;
+            } 
+        }
     }
-    public bool HasTile(Vector3 pos, int index)
+    private Tile GetTile(Vector3 pos)
     {
         pos.y -= cellSize / 2;
         Vector3Int cellPosition = tilemap.WorldToCell(pos);
-        TileBase tileBase = tilemap.GetTile(cellPosition);
-
-        if (tileBase != null)
-        {
-            return true;
-        }
-        return false;
+        Tile tile = tilemap.GetTile<Tile>(cellPosition);
+        return tile;
     }
     public bool HasValidTile(Vector3 pos, int index)
     {
-        pos.y -= cellSize / 2;
-        Vector3Int cellPosition = tilemap.WorldToCell(pos);
-        TileBase tileBase = tilemap.GetTile(cellPosition);
-
-        if (tileBase != null)
+        Tile tile = GetTile(pos);
+        if (tile != null)
         {
-            Tile tile = tilemap.GetTile<Tile>(cellPosition);
             if (tile == mainTiles[0]) return true;
             if (goalTiles.Contains(tile))
             {
@@ -285,31 +291,11 @@ public class GridManager : MonoBehaviour
         }
         return 0;
     }
-
-    public bool TileIsMyMoveType(Vector3 pos, int index)
-    {
-        pos.y -= cellSize / 2;
-        Vector3Int cellPosition = tilemap.WorldToCell(pos);
-        TileBase tileBase = tilemap.GetTile(cellPosition);
-        if (tileBase != null)
-        {
-            Tile tile = tilemap.GetTile<Tile>(cellPosition);
-            if (moveTiles.Contains(tile))
-            {
-                int tileIndex = moveTiles.IndexOf(tile);
-                if (tileIndex / 4 == 0 || tileIndex / 4 == index) return true;
-            }            
-        }
-        return false;
-    }
     public bool TileIsMyGoal(Vector3 pos, int index)
     {
-        pos.y -= cellSize / 2;
-        Vector3Int cellPosition = tilemap.WorldToCell(pos);
-        TileBase tileBase = tilemap.GetTile(cellPosition);
-        if (tileBase != null)
+        Tile tile = GetTile(pos);
+        if (tile != null)
         {
-            Tile tile = tilemap.GetTile<Tile>(cellPosition);
             if (goalTiles.Contains(tile))
             {
                 int tileIndex = goalTiles.IndexOf(tile);
@@ -318,19 +304,19 @@ public class GridManager : MonoBehaviour
         }
         return false;
     }
-    public Vector3 GetTileDirection(Vector3 pos)
+    public Vector3 GetTileDirection(Vector3 pos, int index)
     {
-        pos.y -= cellSize / 2;
-        Vector3Int cellPosition = tilemap.WorldToCell(pos);
-        TileBase tileBase = tilemap.GetTile(cellPosition);
-
-        if (tileBase != null)
+        Tile tile = GetTile(pos);
+        if (tile != null)
         {
-            Tile tile = tilemap.GetTile<Tile>(cellPosition);
             if (moveTiles.Contains(tile))
             {
-                int dirIndex = moveTiles.IndexOf(tile)%4;
-                return directions[dirIndex];
+                int tileIndex = moveTiles.IndexOf(tile);
+                if (tileIndex / 4 == 0 || tileIndex / 4 == index)
+                {
+                    int dirIndex = moveTiles.IndexOf(tile) % 4;
+                    return directions[dirIndex];
+                }
             }
         }
         return new Vector3(0,0,0);
@@ -338,6 +324,18 @@ public class GridManager : MonoBehaviour
     public Map[] GetMaps()
     {
         return maps;
+    }
+
+    public void HideObjects()
+    {
+        foreach(GameObject goal in goals)
+        {
+            goal.SetActive(false);
+        }
+        foreach(GameObject icon in icons)
+        {
+            icon.SetActive(false);
+        }
     }
 }
 

@@ -1,12 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Bot : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private float speed;
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color deadColor = Color.red;
+    [SerializeField] private float speed = 40f;
     private int myType; //desert=1, woods=2; island=3, volcano=4 
     private bool isMoving;
     private bool isDead;
@@ -23,38 +24,30 @@ public class Bot : MonoBehaviour
     {
         if (!isMoving && !isDead)
         {
-            //Checks if current tile changes direction
-            if (GridManager.Instance.TileIsMyMoveType(transform.position, myType))
-            {
-                currentDirection = GridManager.Instance.GetTileDirection(transform.position);
-            }
-
             //Checks if current tile is its goal
             if (GridManager.Instance.TileIsMyGoal(transform.position, myType))
             {
                 TilesGameManager.Instance.BotInGoal(this);
             }
-            else
-            {
-                Vector3 newPosition = transform.position + currentDirection;
-                //Checks if there is no tile
-                if (!GridManager.Instance.HasTile(newPosition, myType))
+            else { 
+                //Checks if current tile changes direction
+                Vector3 newDirection = GridManager.Instance.GetTileDirection(transform.position,myType);
+                if (!newDirection.Equals(new Vector3(0,0,0)))
+                {
+                    currentDirection = newDirection;
+                }
+
+                Vector3 newPosition = transform.position + currentDirection;               
+                //Checks if future tile is valid
+                if (GridManager.Instance.HasValidTile(newPosition, myType))
                 {
                     StartCoroutine(Move(newPosition));
-                    SetDead(true);
                 }
                 else
                 {
-                    //Checks if future tile is valid
-                    if (GridManager.Instance.HasValidTile(newPosition, myType))
-                    {
-                        StartCoroutine(Move(newPosition));
-                    }
-                    else
-                    {
-                        SetDead(true);
-                    }
+                    SetDead(true);
                 }
+                
             }
         }
     }

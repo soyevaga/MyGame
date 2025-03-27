@@ -10,7 +10,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject gamesPanel;
     [SerializeField] private GameObject menuPanel;
-    [SerializeField] private TextMeshProUGUI welcomeText;
     private string username;
     private void Awake()
     {
@@ -41,7 +40,7 @@ public class UIManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(usernameInput.text))
         {
-            warningText.text = "You must introduce a username";
+            warningText.text = "Debes introducir un usuario";
         }
         else
         {
@@ -84,7 +83,6 @@ public class UIManager : MonoBehaviour
     {
         menuPanel.SetActive(false);
         settingsPanel.SetActive(false);
-        welcomeText.text = "Welcome, " + username + "!";
         gamesPanel.SetActive(true);
     }
 
