@@ -13,11 +13,15 @@ public class TilesGameManager : GameManager
     [SerializeField] private TextMeshProUGUI gameOverTimeText;
     [SerializeField] private TextMeshProUGUI gameOverRecordText;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject gamePanel;
+    [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private GameObject goalsInfo;
     [SerializeField] private GameObject newRecord;
     [SerializeField] private GameObject speed;
     [SerializeField] private BotSpawner botSpawner;
     [SerializeField] private Slider speedSlider;
+    [SerializeField] private Image tutorialImage;
+    [SerializeField] private Sprite[] tutorialImages;
     [SerializeField] private Button[] buttons;
     [SerializeField] public UnityEvent onRestartLevel;
     [SerializeField] public UnityEvent onNextLevel;
@@ -27,9 +31,10 @@ public class TilesGameManager : GameManager
     private int currentLevel;
     private int currentSaved;
     private int currentDead;
+    private int currentTutorialImage;
     private bool isGameOver;
     private int[] botTypesPerLevel = {1, 1, 1, 2, 2, 3, 4, 4};
-    private float[] timeScales = { 0.5f, 1f, 2f };
+    private float speedScale;
     private void Awake()
     {
         if (Instance == null)
@@ -52,8 +57,9 @@ public class TilesGameManager : GameManager
         }
         isGameOver = false;
         Time.timeScale = 1f;
-        currentLevel = 7;
+        currentLevel = 0;
         InstantiateGame();
+        TutorialButton();
     }
     void Update()
     {
@@ -106,8 +112,8 @@ public class TilesGameManager : GameManager
     public void InstantiateGame()
     {
         AssignButtons();
+        SetSpeedScale();
         GridManager.Instance.GenerateGrid();
-        botSpawner.DeleteAllBots();
         botSpawner.Spawner(botTypesPerLevel[currentLevel]);
         currentSaved = 0;
         currentDead = 0;
@@ -117,11 +123,8 @@ public class TilesGameManager : GameManager
     {
         Time.timeScale = 0f;
         isGameOver = true;
-        timeText.gameObject.SetActive(false);
-        pointsText.gameObject.SetActive(false);
-        usernameText.gameObject.SetActive(false);
-        goalsInfo.SetActive(false);
-        speed.SetActive(false);
+        gamePanel.SetActive(false);
+        tutorialPanel.SetActive(false);
         if (remainingTime < PlayerPrefs.GetFloat(username+"tiles"))
         {
             PlayerPrefs.SetFloat(username+"tiles", remainingTime);
@@ -141,6 +144,27 @@ public class TilesGameManager : GameManager
         SceneManager.LoadScene("TilesScene");
     }
 
+    public void TutorialButton()
+    {
+        Time.timeScale = 0f;
+        botSpawner.PauseAllBots(true);
+        currentTutorialImage = 0;
+        tutorialImage.sprite= tutorialImages[currentTutorialImage];
+        tutorialPanel.SetActive(true);
+        gameOverPanel.SetActive(false);
+        gamePanel.SetActive(false);
+    }
+
+    public void ExitTutorialButton()
+    {
+        Time.timeScale = 1f;
+        botSpawner.PauseAllBots(false);
+        currentTutorialImage = 0;
+        tutorialImage.sprite = tutorialImages[currentTutorialImage];
+        tutorialPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
+        gamePanel.SetActive(true);
+    }
     public Button ToggledButton()
     {
         Button toggled = null;
@@ -198,8 +222,28 @@ public class TilesGameManager : GameManager
         return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
-    public void SetSpeed()
+    public void SetSpeedScale()
     {
-        Time.timeScale = timeScales[(int)speedSlider.value];
+        int sliderValue = (int)speedSlider.value;
+        if (sliderValue == 0) speedScale = 0.5f;
+        else if (sliderValue == 2) speedScale = 2f;
+        else speedScale = 1f;
+    }
+    public float GetSpeedScale()
+    {
+        return speedScale;
+    }
+    public void TutorialLeftButton()
+    {
+        currentTutorialImage--;
+        if(currentTutorialImage < 0) currentTutorialImage = tutorialImages.Length-1;
+        tutorialImage.sprite = tutorialImages[currentTutorialImage];
+    }
+
+    public void TutorialRightButton()
+    {
+        currentTutorialImage++;
+        if (currentTutorialImage > tutorialImages.Length - 1) currentTutorialImage = 0;
+        tutorialImage.sprite = tutorialImages[currentTutorialImage];
     }
 }

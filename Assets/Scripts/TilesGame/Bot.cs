@@ -1,7 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
-
 public class Bot : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -11,10 +9,12 @@ public class Bot : MonoBehaviour
     private int myType; //desert=1, woods=2; island=3, volcano=4 
     private bool isMoving;
     private bool isDead;
+    private bool isPaused;
     private Vector3 currentDirection;
     public void FirstMove()
     {
         SetDead(false);
+        SetPaused(false);
         currentDirection= new Vector3(0, -25.6f, 0);
         Vector3 newPosition = transform.position + currentDirection;
         StartCoroutine(Move(newPosition));
@@ -22,7 +22,7 @@ public class Bot : MonoBehaviour
     }
     void Update()
     {
-        if (!isMoving && !isDead)
+        if (!isMoving && !isDead && !isPaused)
         {
             //Checks if current tile is its goal
             if (GridManager.Instance.TileIsMyGoal(transform.position, myType))
@@ -54,10 +54,14 @@ public class Bot : MonoBehaviour
     private IEnumerator Move(Vector3 newPosition)
     {
         isMoving = true;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1f*1/TilesGameManager.Instance.GetSpeedScale());
         while (Vector3.Distance(transform.position, newPosition) > 0.01f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, newPosition, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                newPosition,
+                speed * Time.deltaTime*TilesGameManager.Instance.GetSpeedScale()
+                );
             yield return null; 
         }
         isMoving = false;          
@@ -80,5 +84,11 @@ public class Bot : MonoBehaviour
         {
             spriteRenderer.color = normalColor;
         }
+    }
+
+    public void SetPaused(bool isPaused)
+    {
+        this.isPaused = isPaused;
+        spriteRenderer.enabled = !isPaused;
     }
 }

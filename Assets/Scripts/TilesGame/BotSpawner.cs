@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.UI;
 
 public class BotSpawner : MonoBehaviour
 {
@@ -12,20 +11,26 @@ public class BotSpawner : MonoBehaviour
     [SerializeField] private Sprite[] sprites = new Sprite[4];
     private int[] types = { 1,2,3,4};
     private Vector3 initialPos;
-    private bool isSpawning=false;
+    private Coroutine currentRoutine;
     private void Start()
     {
         initialPos = new Vector3(0 + cellSize/2, GridManager.Instance.GetHeight() * cellSize - cellSize/2, -1);
     }
     public void Spawner(int typesNum)
     {
-        StartCoroutine(Spawn(typesNum));
+        if (currentRoutine != null)
+        {
+            StopCoroutine(currentRoutine);
+        }
+        currentRoutine = StartCoroutine(Spawn(typesNum));
     }
 
     private IEnumerator Spawn(int typesNum)
-    {
-        isSpawning = true;
-        for (int i = 0; i < typesNum && isSpawning; i++)
+    {        
+        pool.DeleteAllObjects();
+        yield return new WaitForSeconds(0.2f);
+
+        for (int i = 0; i < typesNum; i++)
         {
             GameObject newBot = pool.GetObject();
             if (newBot != null)
@@ -35,24 +40,22 @@ public class BotSpawner : MonoBehaviour
                 bot.transform.position = initialPos;
                 bot.FirstMove();
             }
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(3f*1/TilesGameManager.Instance.GetSpeedScale());
             
         }
-        isSpawning = false;
     }
     public void DeleteBot(Bot bot)
     {
         pool.DeleteObject(bot.gameObject);
     }
-    public void DeleteAllBots()
-    {
-        StartCoroutine(DeleteAll());
-    }
-    private IEnumerator DeleteAll()
-    {
-        isSpawning = false;
-        pool.DeleteAllObjects();
-        yield return new WaitForSeconds(1f);
-    }
 
+    public void PauseAllBots(bool pause)
+    {
+        List<GameObject> gameObjects = pool.GetActiveObjs();
+        foreach (GameObject obj in gameObjects)
+        {
+            Bot bot = obj.GetComponent<Bot>();
+            bot.SetPaused(pause);
+        }
+    }
 }

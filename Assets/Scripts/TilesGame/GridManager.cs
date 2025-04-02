@@ -267,10 +267,9 @@ public class GridManager : MonoBehaviour
     {
         pos.y -= cellSize/2;
         Vector3Int cellPosition = tilemap.WorldToCell(pos);
-        TileBase clickedTile = tilemap.GetTile(cellPosition);
-        if (clickedTile != null)
+        Tile tile = tilemap.GetTile<Tile>(cellPosition);
+        if (tile != null)
         {
-            Tile tile = tilemap.GetTile<Tile>(cellPosition);
             if (tile == moveTiles[tileIndex])
             {
                 tilemap.SetTile(cellPosition, mainTiles[0]);

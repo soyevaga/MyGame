@@ -101,4 +101,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 2043623217741167909}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  deadColor: {r: 1, g: 0, b: 0, a: 1}
   speed: 40
