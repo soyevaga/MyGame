@@ -19,11 +19,11 @@ public class Player : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (Input.GetKey("left") || Input.GetKey("a"))
+        if (Input.GetKey("up") || Input.GetKey("w"))
         {
             rb.MovePosition(transform.position + (-Vector3.right * speed * Time.fixedDeltaTime));
         }   
-        else if (Input.GetKey("right") || Input.GetKey("d"))
+        else if (Input.GetKey("down") || Input.GetKey("s"))
         {
             rb.MovePosition(transform.position + (Vector3.right * speed * Time.fixedDeltaTime));
         }

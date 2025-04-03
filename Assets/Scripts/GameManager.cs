@@ -17,4 +17,11 @@ public abstract class GameManager : MonoBehaviour
         PlayerPrefs.Save();
         SceneManager.LoadScene("MenuScene");
     }
+    public string TimeFormat(float time)
+    {
+        int minutes = Mathf.FloorToInt(time / 60);
+        int seconds = Mathf.FloorToInt(time % 60);
+        return string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+
 }

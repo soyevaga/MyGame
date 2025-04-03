@@ -9,8 +9,8 @@ public class SpaceGameManager : GameManager
 
     public enum mode
     {
-        par,
-        impar
+        even,
+        odd
     }
 
     [SerializeField] private MeteorSpawner meteorSpawner;
@@ -18,12 +18,16 @@ public class SpaceGameManager : GameManager
     [SerializeField] private TextMeshProUGUI objectiveText;
     [SerializeField] private TextMeshProUGUI recordText;
     [SerializeField] private TextMeshProUGUI punctuationText;
+    [SerializeField] private TextMeshProUGUI timeText;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject gamePanel;
+    [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private GameObject explosionPrefab = null;
-    private int currentPoints; 
-    private int recordPoints;
     [SerializeField] private mode gameMode;
     [SerializeField] public UnityEvent onGameOver;
+    private int currentPoints; 
+    private int recordPoints;
+    private float remainingTime;
     private void Awake()
     {
         if (Instance == null)
@@ -47,20 +51,27 @@ public class SpaceGameManager : GameManager
             PlayerPrefs.Save();
         }
         recordPoints = PlayerPrefs.GetInt(username + "space");
-        pointsText.text = "Score: " + currentPoints + "\n" + "High Score: " + recordPoints;
-        if (gameMode == mode.par)
+        pointsText.text = "Puntos: " + currentPoints + "\n" + "Record: " + recordPoints;
+        if (gameMode == mode.even)
         {
-            objectiveText.text = "Shoot the even numbers!";
+            objectiveText.text = "¡Dispara los numeros pares!";
         }
-        else if (gameMode == mode.impar)
+        else if (gameMode == mode.odd)
         {
-            objectiveText.text = "Shoot the odd numbers!";
+            objectiveText.text = "¡Dispara los numeros impares!";
         }
-
+        remainingTime = 60f;
+        TutorialButton();
     }
     void Update()
     {
-        pointsText.text = "Score: " + currentPoints + "\n" + "High Score: " + recordPoints;
+        remainingTime-= Time.deltaTime;
+        if (remainingTime <= 0)
+        {
+            onGameOver.Invoke();
+        }
+        timeText.text = TimeFormat(remainingTime);
+        pointsText.text = "Puntos: " + currentPoints + "\n" + "Record: " + recordPoints;
     }
 
     public void ModifyPoints(int points)
@@ -80,12 +91,11 @@ public class SpaceGameManager : GameManager
             PlayerPrefs.SetInt(username + "space", currentPoints);
             PlayerPrefs.Save();
             recordPoints = currentPoints;
-            recordText.text = "NEW RECORD!";
+            recordText.text = "¡NUEVO RECORD!";
         }
-        pointsText.gameObject.SetActive(false);
-        usernameText.gameObject.SetActive(false);
-        objectiveText.gameObject.SetActive(false);
-        punctuationText.text = "Score: " + currentPoints + "\n" + "High Score: " + recordPoints;
+        gamePanel.SetActive(false); 
+        tutorialPanel.SetActive(false);
+        punctuationText.text = "Puntos: " + currentPoints + "\n" + "Record: " + recordPoints;
         gameOverPanel.SetActive(true);
     }
 
@@ -94,20 +104,36 @@ public class SpaceGameManager : GameManager
         GameObject explosion = Instantiate(explosionPrefab);
         explosion.transform.position = player.transform.position;
         player.SetActive(false);
-        StartCoroutine(GameOverSequence(explosion));
+        ModifyPoints(-3);
+        StartCoroutine(DestroyPlayerSequence(explosion, player));
     }
-    private IEnumerator GameOverSequence(GameObject explosion)
+    private IEnumerator DestroyPlayerSequence(GameObject explosion, GameObject player)
     {
         yield return new WaitForSeconds(1f);
-        onGameOver.Invoke();
         explosion.SetActive(false);
+        yield return new WaitForSeconds(0.2f);
+        player.SetActive(true);
     }
     
     public void ReplayButton()
     {
         SceneManager.LoadScene("SpaceScene");
     }
+    public void TutorialButton()
+    {
+        Time.timeScale = 0f;
+        tutorialPanel.SetActive(true);
+        gameOverPanel.SetActive(false);
+        gamePanel.SetActive(false);
+    }
 
+    public void ExitTutorialButton()
+    {
+        Time.timeScale = 1f;
+        tutorialPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
+        gamePanel.SetActive(true);
+    }
     public mode GameMode()
     {
         return gameMode;

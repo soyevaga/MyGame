@@ -57,7 +57,7 @@ public class TilesGameManager : GameManager
         }
         isGameOver = false;
         Time.timeScale = 1f;
-        currentLevel = 0;
+        currentLevel = 3;
         InstantiateGame();
         TutorialButton();
     }
@@ -213,13 +213,6 @@ public class TilesGameManager : GameManager
     public void AddDead()
     {
         currentDead++;
-    }
-
-    private string TimeFormat(float time)
-    {
-        int minutes = Mathf.FloorToInt(time / 60);
-        int seconds = Mathf.FloorToInt(time % 60);
-        return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     public void SetSpeedScale()

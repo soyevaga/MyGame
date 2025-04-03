@@ -1,13 +1,12 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MeteorSpawner : MonoBehaviour
 {
     [SerializeField] private PoolGenerator explosionPool = null;
     [SerializeField] private PoolGenerator meteorPool = null;
-    [SerializeField] private float minX = -14f;
-    [SerializeField] private float maxX = 14f;
+    [SerializeField] private float minX = -7f;
+    [SerializeField] private float maxX = 7f;
     void Start()
     {
         InvokeRepeating(nameof(Spawner), 0f, 1f);

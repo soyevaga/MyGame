@@ -16,16 +16,19 @@ public class CardsGameManager : GameManager
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private Image pointsImage;
     [SerializeField] private TextMeshProUGUI timeText;
+    [SerializeField] private TextMeshProUGUI gameOverTimeText;
     [SerializeField] private Image timeImage;
+    [SerializeField] private GameObject newRecord;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject gamePanel;
+    [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private CardSpawner cardSpawner;
-    [SerializeField] public float totalTime = 20f;
     [SerializeField] public UnityEvent onNextLevel;
     [SerializeField] public UnityEvent onGameOver;
     private float remainingTime;
     private int currentLevel;
-    private int[] cardsNumber = { 4, 8, 12, 14, 16, 18, 20, 22, 22, 22};
-    private int[] exchangeNum = { 0, 1,  1,  1,  2,  2,  3,  3,  4,  5};
+    private int[] cardsNumber = { 4, 8, 12, 16, 22};
+    private int[] exchangeNum = { 0, 1,  1,  1,  2};
     private HashSet<Card> selectedCards;
     private int selectedCardsCount;
     private int misses;
@@ -44,37 +47,32 @@ public class CardsGameManager : GameManager
 
     new void Start()
     {
+        base.Start();
         if (!PlayerPrefs.HasKey(username + "cards"))
         {
-            PlayerPrefs.SetInt(username + "cards", int.MaxValue);
+            PlayerPrefs.SetFloat(username + "cards", 999999f);
             PlayerPrefs.Save();
         }
         Time.timeScale = 1f;
         selectedCards = new HashSet<Card> ();
-        base.Start();
-        remainingTime = totalTime;
+        remainingTime = 0f;
         currentLevel = 0;
         misses = 0;
         correctPairs = 0;
+        TutorialButton();
         StartCoroutine(NewLevel());
     }
     void Update()
     {
-        remainingTime-= Time.deltaTime;
-        if(remainingTime <= 0)
-        {
-            onGameOver.Invoke();
-        }
+        remainingTime += Time.deltaTime;       
         if (selectedCardsCount == 2)
         {
             selectedCardsCount = 0;
             CheckPair();
         }
-        int minutes = Mathf.FloorToInt(remainingTime / 60);
-        int seconds = Mathf.FloorToInt(remainingTime % 60);
-        timeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        timeText.text = TimeFormat(remainingTime);
         pointsText.text =""+ misses;
-        levelText.text = "LEVEL " + (currentLevel+1);
+        levelText.text = "NIVEL " + (currentLevel+1);
     }
     private void CheckPair()
     {
@@ -119,17 +117,17 @@ public class CardsGameManager : GameManager
         if (currentLevel < cardsNumber.Length-1)
         {
             currentLevel++;
+            StartCoroutine(NewLevel());
         }
         else
         {
-            currentLevel=cardsNumber.Length-1;
+            onGameOver.Invoke();
         }
-        StartCoroutine(NewLevel());
     }
     private IEnumerator NewLevel()
     {
         yield return new WaitForSeconds(0.5f);
-        newlevelText.text = "LEVEL " + (currentLevel+1);       
+        newlevelText.text = "NIVEL " + (currentLevel+1);       
         yield return new WaitForSeconds(1f);
         newlevelText.text = "";
         yield return new WaitForSeconds(0.5f);
@@ -156,22 +154,57 @@ public class CardsGameManager : GameManager
     }
     public void GameOver()
     {
-        Time.timeScale = 0f;
-        timeImage.gameObject.SetActive(false);
-        pointsImage.gameObject.SetActive(false);
-        timeText.gameObject.SetActive(false);
-        pointsText.gameObject.SetActive(false);
-        usernameText.gameObject.SetActive(false);
-        gameOverPanel.SetActive(true); 
-        if (misses < PlayerPrefs.GetInt(username + "cards"))
+        StartCoroutine(GameOverCoroutine());
+        
+    }
+
+    private IEnumerator GameOverCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        gamePanel.SetActive(false);
+        tutorialPanel.SetActive(false);
+        gameOverPanel.SetActive(true);
+        gameOverTimeText.text = TimeFormat(remainingTime);
+        if (remainingTime < PlayerPrefs.GetFloat(username + "cards"))
         {
-            PlayerPrefs.SetInt(username + "cards", misses);
+            PlayerPrefs.SetFloat(username + "cards", remainingTime);
             PlayerPrefs.Save();
+            StartCoroutine(NewRecord());
         }
+        else
+        {
+            newRecord.SetActive(false);
+        }
+    }
+    private IEnumerator NewRecord()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            newRecord.SetActive(true);
+            yield return new WaitForSeconds(0.6f);
+            newRecord.SetActive(false);
+            yield return new WaitForSeconds(0.6f);
+        }
+        newRecord.SetActive(true);
+    }
+    public void TutorialButton()
+    {
+        Time.timeScale = 0f;
+        tutorialPanel.SetActive(true);
+        gameOverPanel.SetActive(false);
+        gamePanel.SetActive(false);
+    }
+    public void ExitTutorialButton()
+    {
+        Time.timeScale = 1f;
+        tutorialPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
+        gamePanel.SetActive(true);
     }
     public void ReplayButton()
     {
         SceneManager.LoadScene("CardsScene");
     }
+    
 }
 

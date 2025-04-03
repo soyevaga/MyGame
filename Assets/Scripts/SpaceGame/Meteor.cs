@@ -9,7 +9,6 @@ public class Meteor : MonoBehaviour
     {
         rb.MovePosition(transform.position + (Vector3.back * speed * Time.fixedDeltaTime));
     }
-
     private void OnTriggerEnter(Collider other)
     {
         Player p = other.gameObject.GetComponentInParent<Player>();

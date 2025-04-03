@@ -19,7 +19,7 @@ public class Projectile : MonoBehaviour
         {
             m.transform.parent.GetComponent<MeteorSpawner>().DeleteMeteor(m.gameObject);
             player.DeleteProjectile(this.gameObject);
-            if (SpaceGameManager.Instance.GameMode() == SpaceGameManager.mode.par) 
+            if (SpaceGameManager.Instance.GameMode() == SpaceGameManager.mode.even) 
             {
                 if (m.GetNumber() % 2 == 0)
                 {
@@ -27,10 +27,10 @@ public class Projectile : MonoBehaviour
                 }
                 else
                 {
-                    SpaceGameManager.Instance.onGameOver.Invoke();
+                    SpaceGameManager.Instance.ModifyPoints(-1);
                 }
             }
-            else if (SpaceGameManager.Instance.GameMode() == SpaceGameManager.mode.impar) 
+            else if (SpaceGameManager.Instance.GameMode() == SpaceGameManager.mode.odd) 
             {
                 if (m.GetNumber() % 2 != 0)
                 {
@@ -38,7 +38,7 @@ public class Projectile : MonoBehaviour
                 }
                 else
                 {
-                    SpaceGameManager.Instance.onGameOver.Invoke();
+                    SpaceGameManager.Instance.ModifyPoints(-1);
                 }
             }
         }
