@@ -86,4 +86,9 @@ public class UIManager : MonoBehaviour
         gamesPanel.SetActive(true);
     }
 
+    public void QuitButton()
+    {
+        Application.Quit();
+    }
+
 }

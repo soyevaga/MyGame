@@ -60,7 +60,7 @@ public class SpaceGameManager : GameManager
         {
             objectiveText.text = "¡Dispara los numeros impares!";
         }
-        remainingTime = 60f;
+        remainingTime = 180f;
         TutorialButton();
     }
     void Update()

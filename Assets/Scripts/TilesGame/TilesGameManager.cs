@@ -57,7 +57,7 @@ public class TilesGameManager : GameManager
         }
         isGameOver = false;
         Time.timeScale = 1f;
-        currentLevel = 3;
+        currentLevel = 0;
         InstantiateGame();
         TutorialButton();
     }
