@@ -33,6 +33,7 @@ public class CardsGameManager : GameManager
     private int selectedCardsCount;
     private int misses;
     private int correctPairs;
+    private bool isGenerating;
     private void Awake()
     {
         if (Instance == null)
@@ -65,7 +66,7 @@ public class CardsGameManager : GameManager
     void Update()
     {
         remainingTime += Time.deltaTime;       
-        if (selectedCardsCount == 2)
+        if (selectedCardsCount == 2 && !isGenerating)
         {
             selectedCardsCount = 0;
             CheckPair();
@@ -126,6 +127,7 @@ public class CardsGameManager : GameManager
     }
     private IEnumerator NewLevel()
     {
+        isGenerating = true;
         yield return new WaitForSeconds(0.5f);
         newlevelText.text = "NIVEL " + (currentLevel+1);       
         yield return new WaitForSeconds(1f);
@@ -133,6 +135,8 @@ public class CardsGameManager : GameManager
         yield return new WaitForSeconds(0.5f);
         cardSpawner.Spawner(cardsNumber[currentLevel]);
         cardSpawner.Exchange(exchangeNum[currentLevel]);
+        yield return new WaitForSeconds(4f + 2f * exchangeNum[currentLevel]);
+        isGenerating=false;
     }
     public void RemoveSelectedCard(Card card)
     {
@@ -206,5 +210,9 @@ public class CardsGameManager : GameManager
         SceneManager.LoadScene("CardsScene");
     }
     
+    public bool GetIsGenerating()
+    {
+        return isGenerating;
+    }
 }
 

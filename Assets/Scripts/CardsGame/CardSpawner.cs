@@ -29,13 +29,18 @@ public class CardSpawner : MonoBehaviour
     }
     public void Exchange(int times)
     {
+        StartCoroutine(ExchangeCoroutine(times));
+    }
+    private IEnumerator ExchangeCoroutine(int times)
+    {
         List<GameObject> cards = pool.GetActiveObjs();
         HashSet<int> indx = new HashSet<int>();
         for (int i = 0; i < times; i++)
         {
-            Card card1 = cards[findIndex(indx,cards.Count)].GetComponent<Card>();
+            Card card1 = cards[findIndex(indx, cards.Count)].GetComponent<Card>();
             Card card2 = cards[findIndex(indx, cards.Count)].GetComponent<Card>();
             card1.ExchangeCards(card2);
+            yield return new WaitForSeconds(2f);
         }
     }
     private int findIndex(HashSet<int> set, int max)

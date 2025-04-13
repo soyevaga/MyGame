@@ -90,19 +90,22 @@ public class Card : MonoBehaviour
 
     void OnMouseDown()
     {
-        if (isFaceDown && !isRotating)
+        if (!CardsGameManager.Instance.GetIsGenerating())
         {
-            if (backCard.sharedMaterial == backSelected)
+            if (isFaceDown && !isRotating)
             {
-                CardsGameManager.Instance.RemoveSelectedCard(GetComponent<Card>());
-                backCard.material = backStandard;
-            }
-            else
-            {
-                if (CardsGameManager.Instance.AddSelectedCard(GetComponent<Card>()))
+                if (backCard.sharedMaterial == backSelected)
                 {
-                    backCard.material = backSelected;
-                }              
+                    CardsGameManager.Instance.RemoveSelectedCard(GetComponent<Card>());
+                    backCard.material = backStandard;
+                }
+                else
+                {
+                    if (CardsGameManager.Instance.AddSelectedCard(GetComponent<Card>()))
+                    {
+                        backCard.material = backSelected;
+                    }
+                }
             }
         }
     }
