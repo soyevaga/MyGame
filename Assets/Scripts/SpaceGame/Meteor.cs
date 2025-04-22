@@ -2,9 +2,9 @@ using TMPro;
 using UnityEngine;
 public class Meteor : MonoBehaviour
 {
-    [SerializeField] private float speed = 3f;
     [SerializeField] private Rigidbody rb = null;
     [SerializeField] private TextMeshPro text = null;
+    private float speed = 3f;
     void FixedUpdate()
     {
         rb.MovePosition(transform.position + (Vector3.back * speed * Time.fixedDeltaTime));
@@ -31,5 +31,9 @@ public class Meteor : MonoBehaviour
     public int GetNumber()
     {
         return int.Parse(text.text);
+    }
+    public void SetSpeed(float newspeed)
+    {
+        speed = newspeed;
     }
 }

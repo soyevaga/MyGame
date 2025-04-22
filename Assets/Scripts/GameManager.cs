@@ -4,6 +4,12 @@ using UnityEngine.SceneManagement;
 
 public abstract class GameManager : MonoBehaviour
 {
+    public enum mode
+    {
+        lineal,
+        exponential
+    }
+
     [SerializeField] protected TextMeshProUGUI usernameText;
     protected string username;
     protected void Start()
@@ -24,4 +30,8 @@ public abstract class GameManager : MonoBehaviour
         return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
+    public void NextButton()
+    {
+        SceneManager.LoadScene("FormScene");
+    }
 }

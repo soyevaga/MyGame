@@ -90,7 +90,7 @@ public class Card : MonoBehaviour
 
     void OnMouseDown()
     {
-        if (!CardsGameManager.Instance.GetIsGenerating())
+        if (!CardsGameManager.Instance.GetIsGenerating() && !CardsGameManager.Instance.GetIsChecking())
         {
             if (isFaceDown && !isRotating)
             {

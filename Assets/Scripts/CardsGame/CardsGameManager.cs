@@ -20,20 +20,24 @@ public class CardsGameManager : GameManager
     [SerializeField] private Image timeImage;
     [SerializeField] private GameObject newRecord;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject endGamePanel;
     [SerializeField] private GameObject gamePanel;
     [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private CardSpawner cardSpawner;
     [SerializeField] public UnityEvent onNextLevel;
     [SerializeField] public UnityEvent onGameOver;
+    private mode gameMode;
     private float remainingTime;
     private int currentLevel;
-    private int[] cardsNumber = { 4, 8, 12, 16, 22};
-    private int[] exchangeNum = { 0, 1,  1,  1,  2};
+    private int cardsNumber;
+    private int exchangeNumber;
+    private bool exchangeAdded;
     private HashSet<Card> selectedCards;
     private int selectedCardsCount;
     private int misses;
     private int correctPairs;
     private bool isGenerating;
+    private bool isChecking;
     private void Awake()
     {
         if (Instance == null)
@@ -49,15 +53,19 @@ public class CardsGameManager : GameManager
     new void Start()
     {
         base.Start();
+        gameMode = mode.lineal;
         if (!PlayerPrefs.HasKey(username + "cards"))
         {
             PlayerPrefs.SetFloat(username + "cards", 999999f);
             PlayerPrefs.Save();
         }
+        cardsNumber = 6;
+        exchangeNumber = 0; 
+        exchangeAdded = false;
         Time.timeScale = 1f;
         selectedCards = new HashSet<Card> ();
         remainingTime = 0f;
-        currentLevel = 0;
+        currentLevel = 1;
         misses = 0;
         correctPairs = 0;
         TutorialButton();
@@ -66,17 +74,18 @@ public class CardsGameManager : GameManager
     void Update()
     {
         remainingTime += Time.deltaTime;       
-        if (selectedCardsCount == 2 && !isGenerating)
+        if (selectedCardsCount == 2 && !isGenerating && !isChecking)
         {
             selectedCardsCount = 0;
-            CheckPair();
+            StartCoroutine(CheckPair());
         }
         timeText.text = TimeFormat(remainingTime);
         pointsText.text =""+ misses;
-        levelText.text = "NIVEL " + (currentLevel+1);
+        levelText.text = "NIVEL " + currentLevel;
     }
-    private void CheckPair()
+    private IEnumerator CheckPair()
     {
+        isChecking = true;
         Card[] array = selectedCards.ToArray();
         selectedCards.Clear();
         if (array[0].Equals(array[1]))
@@ -92,8 +101,9 @@ public class CardsGameManager : GameManager
             array[1].Restart();
             misses++;
         }
-
-        if(correctPairs== cardsNumber[currentLevel] / 2)
+        yield return new WaitForSeconds(2.5f);
+        isChecking = false;
+        if(correctPairs== cardsNumber / 2)
         {
             StartCoroutine(NextLevelSequence());
         }
@@ -115,27 +125,53 @@ public class CardsGameManager : GameManager
     public void nextLevel()
     {
         correctPairs = 0;
-        if (currentLevel < cardsNumber.Length-1)
-        {
-            currentLevel++;
-            StartCoroutine(NewLevel());
-        }
-        else
+        currentLevel++;
+        StartCoroutine(NewLevel());
+        if (remainingTime >= 180f)
         {
             onGameOver.Invoke();
         }
+        
     }
     private IEnumerator NewLevel()
     {
         isGenerating = true;
+        if (currentLevel > 1)
+        {
+            if (gameMode == mode.lineal)
+            {
+                if (cardsNumber % 4 == 0 && !exchangeAdded)
+                {
+                    exchangeAdded = true;
+                    exchangeNumber++;
+                }
+                else
+                {
+                    exchangeAdded = false;
+                    if (cardsNumber < 22) cardsNumber += 2;
+                    else exchangeNumber++;
+                }
+            }
+            else if (gameMode == mode.exponential)
+            {
+                int modify = (int)Mathf.Pow(1.5f, currentLevel)-1;
+                exchangeNumber = (int)Mathf.Log(modify, 2);
+                cardsNumber = (modify - exchangeNumber)*2+6;
+                if (cardsNumber > 22)
+                {
+                    cardsNumber = 22;
+                    exchangeNumber = modify - 8;
+                }
+            }
+        }
         yield return new WaitForSeconds(0.5f);
-        newlevelText.text = "NIVEL " + (currentLevel+1);       
+        newlevelText.text = "NIVEL " + currentLevel;       
         yield return new WaitForSeconds(1f);
         newlevelText.text = "";
         yield return new WaitForSeconds(0.5f);
-        cardSpawner.Spawner(cardsNumber[currentLevel]);
-        cardSpawner.Exchange(exchangeNum[currentLevel]);
-        yield return new WaitForSeconds(4f + 2f * exchangeNum[currentLevel]);
+        cardSpawner.Spawner(cardsNumber);
+        cardSpawner.Exchange(exchangeNumber);
+        yield return new WaitForSeconds(4f + 2f * exchangeNumber);
         isGenerating=false;
     }
     public void RemoveSelectedCard(Card card)
@@ -168,6 +204,29 @@ public class CardsGameManager : GameManager
         gamePanel.SetActive(false);
         tutorialPanel.SetActive(false);
         gameOverPanel.SetActive(true);
+        gameOverTimeText.text = TimeFormat(remainingTime);
+        if (remainingTime < PlayerPrefs.GetFloat(username + "cards"))
+        {
+            PlayerPrefs.SetFloat(username + "cards", remainingTime);
+            PlayerPrefs.Save();
+            StartCoroutine(NewRecord());
+        }
+        else
+        {
+            newRecord.SetActive(false);
+        }
+    }
+    public void EndGame()
+    {
+        StartCoroutine(EndGameCoroutine());
+    }
+    private IEnumerator EndGameCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        gamePanel.SetActive(false);
+        tutorialPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
+        endGamePanel.SetActive(true);
         gameOverTimeText.text = TimeFormat(remainingTime);
         if (remainingTime < PlayerPrefs.GetFloat(username + "cards"))
         {
@@ -213,6 +272,11 @@ public class CardsGameManager : GameManager
     public bool GetIsGenerating()
     {
         return isGenerating;
+    }
+
+    public bool GetIsChecking()
+    {
+        return isChecking;
     }
 }
 

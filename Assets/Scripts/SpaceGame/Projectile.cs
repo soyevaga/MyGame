@@ -19,28 +19,16 @@ public class Projectile : MonoBehaviour
         {
             m.transform.parent.GetComponent<MeteorSpawner>().DeleteMeteor(m.gameObject);
             player.DeleteProjectile(this.gameObject);
-            if (SpaceGameManager.Instance.GameMode() == SpaceGameManager.mode.even) 
+            
+            if (m.GetNumber() % 2 != 0)
             {
-                if (m.GetNumber() % 2 == 0)
-                {
-                    SpaceGameManager.Instance.ModifyPoints(1);
-                }
-                else
-                {
-                    SpaceGameManager.Instance.ModifyPoints(-1);
-                }
+                SpaceGameManager.Instance.ModifyPoints(1);
             }
-            else if (SpaceGameManager.Instance.GameMode() == SpaceGameManager.mode.odd) 
+            else
             {
-                if (m.GetNumber() % 2 != 0)
-                {
-                    SpaceGameManager.Instance.ModifyPoints(1);
-                }
-                else
-                {
-                    SpaceGameManager.Instance.ModifyPoints(-1);
-                }
+                SpaceGameManager.Instance.ModifyPoints(-1);
             }
+            
         }
         else if (other.gameObject.tag == "Destroyer")
         {

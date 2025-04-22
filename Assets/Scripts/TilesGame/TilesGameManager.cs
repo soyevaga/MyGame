@@ -14,6 +14,7 @@ public class TilesGameManager : GameManager
     [SerializeField] private TextMeshProUGUI gameOverRecordText;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject gamePanel;
+    [SerializeField] private GameObject endGamePanel;
     [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private GameObject goalsInfo;
     [SerializeField] private GameObject newRecord;
@@ -26,6 +27,7 @@ public class TilesGameManager : GameManager
     [SerializeField] public UnityEvent onRestartLevel;
     [SerializeField] public UnityEvent onNextLevel;
     [SerializeField] public UnityEvent onGameOver;
+    private mode gameMode;
     private float remainingTime;
     private float deadTime;
     private int currentLevel;
@@ -35,6 +37,7 @@ public class TilesGameManager : GameManager
     private bool isGameOver;
     private int[] botTypesPerLevel = {1, 1, 1, 2, 2, 3, 4, 4};
     private float speedScale;
+    private int restartCounter;
     private void Awake()
     {
         if (Instance == null)
@@ -50,6 +53,7 @@ public class TilesGameManager : GameManager
     new void Start()
     {
         base.Start();
+        gameMode = mode.lineal;
         if (!PlayerPrefs.HasKey(username + "tiles"))
         {
             PlayerPrefs.SetFloat(username + "tiles", float.MaxValue);
@@ -67,11 +71,11 @@ public class TilesGameManager : GameManager
         {
             remainingTime += Time.deltaTime;
             timeText.text = TimeFormat(remainingTime);
-            if (currentSaved == botTypesPerLevel[currentLevel])
+            if (currentSaved == botTypesPerLevel[currentLevel/2])
             {
                 onNextLevel.Invoke();
             }
-            else if (currentSaved + currentDead == botTypesPerLevel[currentLevel])
+            else if (currentSaved + currentDead == botTypesPerLevel[currentLevel/2])
             {
                 if (deadTime <= 0)
                 {
@@ -93,28 +97,72 @@ public class TilesGameManager : GameManager
                 }
 
             }
-            levelText.text = "Nivel " + (currentLevel + 1);
+            levelText.text = "Nivel " + (currentLevel/2 + 1);
             pointsText.text = "Salvados: " + currentSaved;
         }
     }
     public void nextLevel()
     {
-        currentLevel++;
-        if (currentLevel >= botTypesPerLevel.Length)
+        //currentLevel/2 + 1 is the real level
+        if (gameMode==mode.lineal)
+        {
+            if (restartCounter <= (currentLevel / 2)) // <=level-1 level up
+            {
+                currentLevel += 2;
+            }
+            else if (restartCounter >= (currentLevel / 2 + 3)) // >=level+2 level down
+            {
+                currentLevel -= 2;
+                if(currentLevel<0) currentLevel = 0;
+            }
+            else //alternate with same level map
+            {
+                if(currentLevel%2==0) currentLevel++;
+                else currentLevel--;
+            }
+        }
+        else
+        {
+            if (restartCounter <= (currentLevel / 2)) // <=level-1 level up
+            {
+                if (currentLevel / 2 == 4) currentLevel += 2;
+                else currentLevel += 4;
+            }
+            else if (restartCounter >= (currentLevel / 2 + 3)) // >=level+2 level down
+            {
+                if (currentLevel / 2 == 4) currentLevel -= 2;
+                else currentLevel -= 4;
+
+                if (currentLevel < 0) currentLevel = 0;
+            }
+            else //alternate with same level map
+            {
+                if (currentLevel % 2 == 0) currentLevel++;
+                else currentLevel--;
+            }
+        }
+        if (currentLevel/2 >= botTypesPerLevel.Length || remainingTime>=180f)
         {
             onGameOver.Invoke();
         }
         else
         {
+            restartCounter = 0;
             InstantiateGame();
         }
+    }
+
+    public void RestartLevel()
+    {
+        restartCounter++;
+        InstantiateGame();
     }
     public void InstantiateGame()
     {
         AssignButtons();
         SetSpeedScale();
         GridManager.Instance.GenerateGrid();
-        botSpawner.Spawner(botTypesPerLevel[currentLevel]);
+        botSpawner.Spawner(botTypesPerLevel[currentLevel/2]);
         currentSaved = 0;
         currentDead = 0;
         deadTime = 3f;
@@ -138,6 +186,27 @@ public class TilesGameManager : GameManager
         gameOverRecordText.text= TimeFormat(PlayerPrefs.GetFloat(username+"tiles"));
         gameOverTimeText.text = TimeFormat(remainingTime);
         gameOverPanel.SetActive(true);
+    }
+    public void EndGame()
+    {
+        Time.timeScale = 0f;
+        isGameOver = true;
+        gamePanel.SetActive(false);
+        tutorialPanel.SetActive(false);
+        if (remainingTime < PlayerPrefs.GetFloat(username + "tiles"))
+        {
+            PlayerPrefs.SetFloat(username + "tiles", remainingTime);
+            PlayerPrefs.Save();
+            newRecord.SetActive(true);
+        }
+        else
+        {
+            newRecord.SetActive(false);
+        }
+        gameOverRecordText.text = TimeFormat(PlayerPrefs.GetFloat(username + "tiles"));
+        gameOverTimeText.text = TimeFormat(remainingTime);
+        gameOverPanel.SetActive(false);
+        endGamePanel.SetActive(true);
     }
     public void ReplayButton()
     {
