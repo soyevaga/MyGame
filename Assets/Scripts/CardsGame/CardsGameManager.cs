@@ -28,6 +28,7 @@ public class CardsGameManager : GameManager
     [SerializeField] public UnityEvent onGameOver;
     private mode gameMode;
     private float remainingTime;
+    private float levelTime;
     private int currentLevel;
     private int cardsNumber;
     private int exchangeNumber;
@@ -35,6 +36,7 @@ public class CardsGameManager : GameManager
     private HashSet<Card> selectedCards;
     private int selectedCardsCount;
     private int misses;
+    private int currentMisses;
     private int correctPairs;
     private bool isGenerating;
     private bool isChecking;
@@ -53,13 +55,15 @@ public class CardsGameManager : GameManager
     new void Start()
     {
         base.Start();
-        gameMode = mode.lineal;
+        string type = "Type"+  PlayerPrefs.GetInt("CurrentGameNumber");
+        if (PlayerPrefs.GetString(type) == "Lineal") gameMode = mode.lineal;
+        else gameMode = mode.exponential;
         if (!PlayerPrefs.HasKey(username + "cards"))
         {
             PlayerPrefs.SetFloat(username + "cards", 999999f);
             PlayerPrefs.Save();
         }
-        cardsNumber = 6;
+        cardsNumber = 4;
         exchangeNumber = 0; 
         exchangeAdded = false;
         Time.timeScale = 1f;
@@ -74,6 +78,7 @@ public class CardsGameManager : GameManager
     void Update()
     {
         remainingTime += Time.deltaTime;       
+        levelTime += Time.deltaTime;
         if (selectedCardsCount == 2 && !isGenerating && !isChecking)
         {
             selectedCardsCount = 0;
@@ -100,6 +105,7 @@ public class CardsGameManager : GameManager
             array[0].Restart();
             array[1].Restart();
             misses++;
+            currentMisses++;
         }
         yield return new WaitForSeconds(2.5f);
         isChecking = false;
@@ -125,9 +131,8 @@ public class CardsGameManager : GameManager
     public void nextLevel()
     {
         correctPairs = 0;
-        currentLevel++;
         StartCoroutine(NewLevel());
-        if (remainingTime >= 180f)
+        if (remainingTime >= maxTime)
         {
             onGameOver.Invoke();
         }
@@ -138,32 +143,82 @@ public class CardsGameManager : GameManager
         isGenerating = true;
         if (currentLevel > 1)
         {
+            int perfectTime = 3 * (cardsNumber / 2 + exchangeNumber);
+            if (cardsNumber % 5 == 0) perfectTime += 5 * (cardsNumber / 5 - 1);
             if (gameMode == mode.lineal)
             {
-                if (cardsNumber % 4 == 0 && !exchangeAdded)
+                if(3*currentMisses<=cardsNumber && levelTime <= perfectTime) // level up
                 {
-                    exchangeAdded = true;
-                    exchangeNumber++;
+                    currentLevel++;
+                    if (cardsNumber % 4 == 0 && !exchangeAdded)
+                    {
+                        exchangeAdded = true;
+                        exchangeNumber++;
+                    }
+                    else
+                    {
+                        exchangeAdded = false;
+                        if (cardsNumber < 22) cardsNumber += 2;
+                        else exchangeNumber++;
+                    }
+
                 }
-                else
+                else if(3*currentMisses>=2*cardsNumber && levelTime>=perfectTime+10) //level down
                 {
-                    exchangeAdded = false;
-                    if (cardsNumber < 22) cardsNumber += 2;
-                    else exchangeNumber++;
+                    currentLevel--;
+                    if (currentLevel < 1) currentLevel = 1;
+
+                    if (cardsNumber % 4 == 0 && exchangeAdded)
+                    {
+                        exchangeAdded = false;
+                        exchangeNumber--;
+                    }
+                    else
+                    {
+                        exchangeAdded = true;
+                        if (cardsNumber > 6) cardsNumber -= 2;
+                        else exchangeNumber--;
+
+                        if (exchangeNumber < 0) exchangeNumber = 0;
+                        if (cardsNumber < 6) cardsNumber = 6;
+                    }
+
                 }
+                
             }
             else if (gameMode == mode.exponential)
             {
-                int modify = (int)Mathf.Pow(1.5f, currentLevel)-1;
-                exchangeNumber = (int)Mathf.Log(modify, 2);
-                cardsNumber = (modify - exchangeNumber)*2+6;
-                if (cardsNumber > 22)
+                if (3 * currentMisses <= cardsNumber && levelTime <= perfectTime) // level up
                 {
-                    cardsNumber = 22;
-                    exchangeNumber = modify - 8;
+                    currentLevel++;
+                    int modify = (int)Mathf.Pow(1.5f, currentLevel- 1);
+                    exchangeNumber = (int)Mathf.Log(modify, 2);
+                    if(currentLevel==7) exchangeNumber++;
+                    cardsNumber = (modify - exchangeNumber) * 2 + 4;
+                    if (cardsNumber > 22)
+                    {
+                        cardsNumber = 22;
+                        exchangeNumber = modify - 9;
+                    }
                 }
+                else if (3 * currentMisses >= 2 * cardsNumber && levelTime >= perfectTime + 10) //level down
+                {
+                    currentLevel--;
+                    int modify = (int)Mathf.Pow(1.5f, currentLevel- 1);
+                    exchangeNumber = (int)Mathf.Log(modify, 2);
+                    if (currentLevel == 7) exchangeNumber++;
+                    cardsNumber = (modify - exchangeNumber) * 2 + 4;
+                    if (cardsNumber < 4)
+                    {
+                        cardsNumber = 4;
+                        exchangeNumber = 0;
+                    }
+                }
+                
             }
         }
+        currentMisses = 0;
+        levelTime = 0f;
         yield return new WaitForSeconds(0.5f);
         newlevelText.text = "NIVEL " + currentLevel;       
         yield return new WaitForSeconds(1f);

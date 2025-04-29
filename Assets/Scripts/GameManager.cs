@@ -9,13 +9,12 @@ public abstract class GameManager : MonoBehaviour
         lineal,
         exponential
     }
-
-    [SerializeField] protected TextMeshProUGUI usernameText;
     protected string username;
+    protected float maxTime;
     protected void Start()
     {
         username = PlayerPrefs.GetString("username");
-        usernameText.text = username;
+        maxTime = 10f;
     }
     public void MenuButton()
     {
@@ -32,6 +31,9 @@ public abstract class GameManager : MonoBehaviour
 
     public void NextButton()
     {
+        int currentGame = PlayerPrefs.GetInt("CurrentGameNumber") + 1;
+        PlayerPrefs.SetInt("CurrentGameNumber", currentGame);
+        PlayerPrefs.Save();
         SceneManager.LoadScene("FormScene");
     }
 }

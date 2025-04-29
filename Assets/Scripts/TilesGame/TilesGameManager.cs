@@ -53,7 +53,9 @@ public class TilesGameManager : GameManager
     new void Start()
     {
         base.Start();
-        gameMode = mode.lineal;
+        string type = "Type" + PlayerPrefs.GetInt("CurrentGameNumber");
+        if (PlayerPrefs.GetString(type) == "Lineal") gameMode = mode.lineal;
+        else gameMode = mode.exponential;
         if (!PlayerPrefs.HasKey(username + "tiles"))
         {
             PlayerPrefs.SetFloat(username + "tiles", float.MaxValue);
@@ -141,7 +143,7 @@ public class TilesGameManager : GameManager
                 else currentLevel--;
             }
         }
-        if (currentLevel/2 >= botTypesPerLevel.Length || remainingTime>=180f)
+        if (currentLevel/2 >= botTypesPerLevel.Length || remainingTime>=maxTime)
         {
             onGameOver.Invoke();
         }

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using Unity.VisualScripting;
 public class SpaceGameManager : GameManager
 {
     public static SpaceGameManager Instance { get; private set; }
@@ -41,7 +42,9 @@ public class SpaceGameManager : GameManager
     {
         base.Start();
         Time.timeScale = 1f;
-        gameMode = mode.lineal;
+        string type = "Type" + PlayerPrefs.GetInt("CurrentGameNumber");
+        if (PlayerPrefs.GetString(type) == "Lineal") gameMode = mode.lineal;
+        else gameMode = mode.exponential;
         meteorSpawner.InitialSpeed(gameMode);
         currentPoints = 0;
         currentKills = 0;
@@ -53,7 +56,7 @@ public class SpaceGameManager : GameManager
         recordPoints = PlayerPrefs.GetInt(username + "space");
         pointsText.text = "Puntos: " + currentPoints + "\n" + "Record: " + recordPoints;        
         objectiveText.text = "¡Dispara los numeros impares!";        
-        remainingTime = 180f;
+        remainingTime = maxTime;
         TutorialButton();
     }
     void Update()
