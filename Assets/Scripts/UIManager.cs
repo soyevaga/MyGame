@@ -30,6 +30,8 @@ public class UIManager : MonoBehaviour
         username = PlayerPrefs.GetString("username");
         if (PlayerPrefs.HasKey("end") && PlayerPrefs.GetInt("end") == 1)
         {
+            PlayerPrefs.SetInt("end", 0);
+            PlayerPrefs.Save();
             ShowEnd();
         }
         else
@@ -51,6 +53,7 @@ public class UIManager : MonoBehaviour
                 PlayerPrefs.SetString("username", username);
                 string gender = genderDropdown.options[genderDropdown.value].text;
                 PlayerPrefs.SetString("gender", gender);
+                PlayerPrefs.SetInt("age", myYear);
 
                 string[] games = { "SpaceScene", "CardsScene", "TilesScene" };
                 // Random asignation
@@ -67,16 +70,17 @@ public class UIManager : MonoBehaviour
 
                 if (birthdayDropdown.value == 0) // Even
                 {
+                    PlayerPrefs.SetString("birthday", "Par");
                     PlayerPrefs.SetString("Type1", "Lineal");
-                    PlayerPrefs.SetString("Type2", "Exponential");
+                    PlayerPrefs.SetString("Type2", "Exponencial");
                     PlayerPrefs.SetString("Type3", "Lineal");
                 }
                 else // Odd
                 {
-
-                    PlayerPrefs.SetString("Type1", "Exponential");
+                    PlayerPrefs.SetString("birthday", "Impar");
+                    PlayerPrefs.SetString("Type1", "Exponencial");
                     PlayerPrefs.SetString("Type2", "Lineal");
-                    PlayerPrefs.SetString("Type3", "Exponential");
+                    PlayerPrefs.SetString("Type3", "Exponencial");
                 }
                 PlayerPrefs.SetInt("CurrentGameNumber", 1);
                 PlayerPrefs.SetInt("end", 0);

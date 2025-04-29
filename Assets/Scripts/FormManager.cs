@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -16,10 +17,11 @@ public class FormManager : MonoBehaviour
     [SerializeField] private GameObject panel2;
     private bool panel1TogglesSelected;
     private Toggle[] toggleSelected;
+    private int gameNumber;
     public class Pair
     {
-        public int question;   
-        public int answer;    
+        public int question;
+        public int answer;
     }
     private void Awake()
     {
@@ -35,6 +37,7 @@ public class FormManager : MonoBehaviour
 
     void Start()
     {
+        gameNumber = PlayerPrefs.GetInt("CurrentGameNumber");
         toggleSelected = new Toggle[14];
         panel1.SetActive(true);
         panel2.SetActive(false);
@@ -42,7 +45,7 @@ public class FormManager : MonoBehaviour
 
     void Update()
     {
-        
+
     }
     public void ChangePanel()
     {
@@ -54,7 +57,7 @@ public class FormManager : MonoBehaviour
         else
         {
             panel1TogglesSelected = CheckTogglesPanel(1);
-            panel1.SetActive(false);  
+            panel1.SetActive(false);
             panel2.SetActive(true);
         }
     }
@@ -89,7 +92,7 @@ public class FormManager : MonoBehaviour
                         break;
                     }
                 }
-            }         
+            }
 
         }
         return toReturn;
@@ -105,8 +108,7 @@ public class FormManager : MonoBehaviour
         else
         {
             GenerateJSON();
-            int number = PlayerPrefs.GetInt("CurrentGameNumber");
-            if (number == 4)
+            if (gameNumber == 3)
             {
                 PlayerPrefs.SetInt("end", 1);
                 PlayerPrefs.Save();
@@ -114,7 +116,9 @@ public class FormManager : MonoBehaviour
             }
             else
             {
-                string game = "Game" + number;
+                PlayerPrefs.SetInt("CurrentGameNumber", gameNumber + 1);
+                PlayerPrefs.Save();
+                string game = "Game" + (gameNumber + 1);
                 SceneManager.LoadScene(PlayerPrefs.GetString(game));
             }
         }
@@ -145,17 +149,61 @@ public class FormManager : MonoBehaviour
             }
         }
 
+        string gameName = string.Empty;
+        if (PlayerPrefs.GetString("Game" + gameNumber) == "TilesScene")
+            gameName = "Tiles";
+        else if (PlayerPrefs.GetString("Game" + gameNumber) == "CardsScene")
+            gameName = "Cards";
+        else if (PlayerPrefs.GetString("Game" + gameNumber) == "SpaceScene")
+            gameName = "Space";
+
+        string data = $@"{{
+            ""username"":""TFGEvaAtencion"",
+            ""token"":  ""VS71Ozn0WJpvd73FnhzLIRrImE+bNVkzlwMnOj4yNymB"",
+            ""table"": ""test"",
+            ""data"": {{
+            ""userID"":""{PlayerPrefs.GetString("username")}"", 
+            ""gender"":""{PlayerPrefs.GetString("gender")}"",
+            ""age"":{PlayerPrefs.GetInt("age")},
+            ""birthday"":""{PlayerPrefs.GetString("birthday")}"",
+            ""game"": ""{gameName}"", 
+            ""difficulty"": ""{PlayerPrefs.GetString("Type" + gameNumber)}"", 
+            ""order"": ""{gameNumber}"",
+        ";
         StringBuilder json = new StringBuilder();
-        json.Append("{\"form\": [");
+        json.Append(data);
+        json.Append("\"form\": [");
         foreach (Pair pair in answers)
         {
-            json.Append("{\"question\": " +pair.question+", \"answer\": "+pair.answer+"},");
+            json.Append("{\"question\": " + pair.question + ", \"answer\": " + pair.answer + "},");
         }
         json.Length--;
-        json.Append("]}");
-            
-        Debug.Log(json);
+        json.Append("]}}");
+        Debug.Log(json.ToString());
+        //StartCoroutine(PostRequest(json.ToString()));
 
     }
+    IEnumerator PostRequest(string data)
+    {
 
+        UnityWebRequest request = UnityWebRequest.PostWwwForm("https://tfvj.etsii.urjc.es/insert", data);
+
+        // Configurar la solicitud (headers, etc.) si es necesario
+        request.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        // Enviar la solicitud y esperar la respuesta
+        yield return request.SendWebRequest();
+
+        // Verificar si hay errores
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + request.error);
+        }
+        else
+        {
+            // La solicitud fue exitosa, puedes acceder a la respuesta
+            Debug.Log("Respuesta: " + request.downloadHandler.text);
+        }
+
+    }
 }
