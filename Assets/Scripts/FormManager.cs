@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -18,11 +16,27 @@ public class FormManager : MonoBehaviour
     private bool panel1TogglesSelected;
     private Toggle[] toggleSelected;
     private int gameNumber;
-    public class Pair
+    private string gameName;
+    public class Form
     {
-        public int question;
-        public int answer;
+        public string userID;
+        public string game;
+        public int question1;
+        public int question2;
+        public int question3;
+        public int question4;
+        public int question5;
+        public int question6;
+        public int question7;
+        public int question8;
+        public int question9;
+        public int question10;
+        public int question11;
+        public int question12;
+        public int question13;
+        public int question14;
     }
+
     private void Awake()
     {
         if (Instance == null)
@@ -38,15 +52,17 @@ public class FormManager : MonoBehaviour
     void Start()
     {
         gameNumber = PlayerPrefs.GetInt("CurrentGameNumber");
+        if (PlayerPrefs.GetString("Game" + gameNumber) == "TilesScene")
+            gameName = "tiles";
+        else if (PlayerPrefs.GetString("Game" + gameNumber) == "CardsScene")
+            gameName = "cards";
+        else if (PlayerPrefs.GetString("Game" + gameNumber) == "SpaceScene")
+            gameName = "space";
         toggleSelected = new Toggle[14];
         panel1.SetActive(true);
         panel2.SetActive(false);
     }
 
-    void Update()
-    {
-
-    }
     public void ChangePanel()
     {
         if (panel2.activeInHierarchy)
@@ -107,7 +123,7 @@ public class FormManager : MonoBehaviour
         }
         else
         {
-            GenerateJSON();
+            DBManager.Instance.GenerateFormJSON(GenerateJSON());    
             if (gameNumber == 3)
             {
                 PlayerPrefs.SetInt("end", 1);
@@ -129,81 +145,31 @@ public class FormManager : MonoBehaviour
         warningText.gameObject.SetActive(true);
         yield return new WaitForSeconds(2f);
         warningText.gameObject.SetActive(false);
-    }
+    }    
 
-
-    public void GenerateJSON()
+    public string GenerateJSON()
     {
-        List<Pair> answers = new List<Pair>();
-
-        for (int i = 0; i < toggleSelected.Length; i++)
+        
+        Form form = new Form
         {
-            if (toggleSelected[i] != null)
-            {
-                int numberSelected = int.Parse(toggleSelected[i].name.Replace("Toggle", ""));
-                answers.Add(new Pair
-                {
-                    question = i + 1,
-                    answer = numberSelected
-                });
-            }
-        }
+            userID = PlayerPrefs.GetString("username"),
+            game = gameName,
+            question1 = int.Parse(toggleSelected[0].name.Replace("Toggle", "")),
+            question2 = int.Parse(toggleSelected[1].name.Replace("Toggle", "")),
+            question3= int.Parse(toggleSelected[2].name.Replace("Toggle", "")),
+            question4 = int.Parse(toggleSelected[3].name.Replace("Toggle", "")),
+            question5 = int.Parse(toggleSelected[4].name.Replace("Toggle", "")),
+            question6 = int.Parse(toggleSelected[5].name.Replace("Toggle", "")),
+            question7 = int.Parse(toggleSelected[6].name.Replace("Toggle", "")),
+            question8 = int.Parse(toggleSelected[7].name.Replace("Toggle", "")),
+            question9 = int.Parse(toggleSelected[8].name.Replace("Toggle", "")),
+            question10 = int.Parse(toggleSelected[9].name.Replace("Toggle", "")),
+            question11 = int.Parse(toggleSelected[10].name.Replace("Toggle", "")),
+            question12 = int.Parse(toggleSelected[11].name.Replace("Toggle", "")),
+            question13 = int.Parse(toggleSelected[12].name.Replace("Toggle", "")),
+            question14 = int.Parse(toggleSelected[13].name.Replace("Toggle", "")),
+        };
 
-        string gameName = string.Empty;
-        if (PlayerPrefs.GetString("Game" + gameNumber) == "TilesScene")
-            gameName = "Tiles";
-        else if (PlayerPrefs.GetString("Game" + gameNumber) == "CardsScene")
-            gameName = "Cards";
-        else if (PlayerPrefs.GetString("Game" + gameNumber) == "SpaceScene")
-            gameName = "Space";
-
-        string data = $@"{{
-            ""username"":""TFGEvaAtencion"",
-            ""token"":  ""VS71Ozn0WJpvd73FnhzLIRrImE+bNVkzlwMnOj4yNymB"",
-            ""table"": ""test"",
-            ""data"": {{
-            ""userID"":""{PlayerPrefs.GetString("username")}"", 
-            ""gender"":""{PlayerPrefs.GetString("gender")}"",
-            ""age"":{PlayerPrefs.GetInt("age")},
-            ""birthday"":""{PlayerPrefs.GetString("birthday")}"",
-            ""game"": ""{gameName}"", 
-            ""difficulty"": ""{PlayerPrefs.GetString("Type" + gameNumber)}"", 
-            ""order"": ""{gameNumber}"",
-        ";
-        StringBuilder json = new StringBuilder();
-        json.Append(data);
-        json.Append("\"form\": [");
-        foreach (Pair pair in answers)
-        {
-            json.Append("{\"question\": " + pair.question + ", \"answer\": " + pair.answer + "},");
-        }
-        json.Length--;
-        json.Append("]}}");
-        Debug.Log(json.ToString());
-        //StartCoroutine(PostRequest(json.ToString()));
-
-    }
-    IEnumerator PostRequest(string data)
-    {
-
-        UnityWebRequest request = UnityWebRequest.PostWwwForm("https://tfvj.etsii.urjc.es/insert", data);
-
-        // Configurar la solicitud (headers, etc.) si es necesario
-        request.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-        // Enviar la solicitud y esperar la respuesta
-        yield return request.SendWebRequest();
-
-        // Verificar si hay errores
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log("Error: " + request.error);
-        }
-        else
-        {
-            // La solicitud fue exitosa, puedes acceder a la respuesta
-            Debug.Log("Respuesta: " + request.downloadHandler.text);
-        }
-
+        return JsonUtility.ToJson(form);
     }
 }

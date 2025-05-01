@@ -38,6 +38,8 @@ public class TilesGameManager : GameManager
     private int[] botTypesPerLevel = {1, 1, 1, 2, 2, 3, 4, 4};
     private float speedScale;
     private int restartCounter;
+    private int clicks;
+    private int totalRestarts;
     private void Awake()
     {
         if (Instance == null)
@@ -53,6 +55,8 @@ public class TilesGameManager : GameManager
     new void Start()
     {
         base.Start();
+        clicks = 0;
+        totalRestarts = 0;
         string type = "Type" + PlayerPrefs.GetInt("CurrentGameNumber");
         if (PlayerPrefs.GetString(type) == "Lineal") gameMode = mode.lineal;
         else gameMode = mode.exponential;
@@ -69,6 +73,7 @@ public class TilesGameManager : GameManager
     }
     void Update()
     {
+        if (Input.GetMouseButtonDown(0)) clicks++;
         if (!isGameOver)
         {
             remainingTime += Time.deltaTime;
@@ -157,6 +162,7 @@ public class TilesGameManager : GameManager
     public void RestartLevel()
     {
         restartCounter++;
+        totalRestarts++;
         InstantiateGame();
     }
     public void InstantiateGame()
@@ -209,6 +215,13 @@ public class TilesGameManager : GameManager
         gameOverTimeText.text = TimeFormat(remainingTime);
         gameOverPanel.SetActive(false);
         endGamePanel.SetActive(true);
+
+        string data = $@"
+            ""clicks"":{clicks},
+            ""level"":{currentLevel / 2 + 1},
+            ""restarts"":{totalRestarts}
+        }}";
+        //FormManager.Instance.SetGameData(data);
     }
     public void ReplayButton()
     {

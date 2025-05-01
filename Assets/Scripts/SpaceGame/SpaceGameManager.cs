@@ -9,6 +9,7 @@ public class SpaceGameManager : GameManager
     public static SpaceGameManager Instance { get; private set; }
 
     [SerializeField] private MeteorSpawner meteorSpawner;
+    [SerializeField] private Player player;
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private TextMeshProUGUI objectiveText;
     [SerializeField] private TextMeshProUGUI recordText;
@@ -26,6 +27,9 @@ public class SpaceGameManager : GameManager
     private float remainingTime;
     private float levelTime;
     private int currentKills;
+    private int selfKills;
+    private int oddKills;
+    private int evenKills;
     private void Awake()
     {
         if (Instance == null)
@@ -48,6 +52,9 @@ public class SpaceGameManager : GameManager
         meteorSpawner.InitialSpeed(gameMode);
         currentPoints = 0;
         currentKills = 0;
+        selfKills = 0;
+        oddKills = 0;
+        evenKills = 0;
         if (!PlayerPrefs.HasKey(username+"space"))
         {
             PlayerPrefs.SetInt(username+"space", 0);
@@ -78,7 +85,15 @@ public class SpaceGameManager : GameManager
 
     public void ModifyPoints(int points)
     {
-        if (points == 1) currentKills++;
+        if (points == 1)
+        {
+            currentKills++;
+            oddKills++;
+        }
+        else
+        {
+            evenKills++;
+        }
         currentPoints += points;
         if (currentPoints < 0)
         {
@@ -116,6 +131,15 @@ public class SpaceGameManager : GameManager
         punctuationText.text = "Puntos: " + currentPoints + "\n" + "Record: " + recordPoints;
         gameOverPanel.SetActive(false);
         endGamePanel.SetActive(true);
+
+        string data = $@"
+            ""shoots"":{player.GetShoots()},
+            ""evens_killed"":{evenKills},
+            ""odds_killed"":{oddKills},
+            ""speed"":{meteorSpawner.GetMeteorSpeed()},
+            ""self_killed"": {selfKills}
+        }}";
+        //FormManager.Instance.SetGameData(data);
     }
     public void DestroyPlayer(GameObject player)
     {
@@ -123,6 +147,7 @@ public class SpaceGameManager : GameManager
         explosion.transform.position = player.transform.position;
         player.SetActive(false);
         ModifyPoints(-3);
+        selfKills++;
         StartCoroutine(DestroyPlayerSequence(explosion, player));
     }
     private IEnumerator DestroyPlayerSequence(GameObject explosion, GameObject player)

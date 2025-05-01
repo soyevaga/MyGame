@@ -11,6 +11,7 @@ public abstract class GameManager : MonoBehaviour
     }
     protected string username;
     protected float maxTime;
+    protected string gameData;
     protected void Start()
     {
         username = PlayerPrefs.GetString("username");

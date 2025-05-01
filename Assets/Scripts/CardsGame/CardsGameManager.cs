@@ -37,9 +37,12 @@ public class CardsGameManager : GameManager
     private int selectedCardsCount;
     private int misses;
     private int currentMisses;
+    private int clicks;
     private int correctPairs;
+    private int totalCorrect;
     private bool isGenerating;
     private bool isChecking;
+    private bool newGame;
     private void Awake()
     {
         if (Instance == null)
@@ -71,12 +74,16 @@ public class CardsGameManager : GameManager
         remainingTime = 0f;
         currentLevel = 1;
         misses = 0;
+        clicks = 0;
         correctPairs = 0;
+        totalCorrect = 0;
+        newGame = true;
         TutorialButton();
         StartCoroutine(NewLevel());
     }
     void Update()
     {
+        if (Input.GetMouseButtonDown(0)) clicks++;
         remainingTime += Time.deltaTime;       
         levelTime += Time.deltaTime;
         if (selectedCardsCount == 2 && !isGenerating && !isChecking)
@@ -97,6 +104,7 @@ public class CardsGameManager : GameManager
         {
             StartCoroutine(DeletePair(array[0], array[1]));
             correctPairs++;
+            totalCorrect++;
         }
         else
         {
@@ -143,8 +151,7 @@ public class CardsGameManager : GameManager
         isGenerating = true;
         if (currentLevel > 1)
         {
-            int perfectTime = 3 * (cardsNumber / 2 + exchangeNumber);
-            if (cardsNumber % 5 == 0) perfectTime += 5 * (cardsNumber / 5 - 1);
+            int perfectTime = 4 * cardsNumber  + 3 * exchangeNumber;
             if (gameMode == mode.lineal)
             {
                 if(3*currentMisses<=cardsNumber && levelTime <= perfectTime) // level up
@@ -217,6 +224,18 @@ public class CardsGameManager : GameManager
                 
             }
         }
+        else
+        {
+            if (!newGame)
+            {
+                currentLevel++;
+                cardsNumber += 2;
+            }
+            else
+            {
+                newGame = false;
+            }
+        }
         currentMisses = 0;
         levelTime = 0f;
         yield return new WaitForSeconds(0.5f);
@@ -283,6 +302,15 @@ public class CardsGameManager : GameManager
         gameOverPanel.SetActive(false);
         endGamePanel.SetActive(true);
         gameOverTimeText.text = TimeFormat(remainingTime);
+
+        string data = $@"
+            ""clicks"":{clicks},
+            ""level"":{currentLevel},
+            ""correct_pairs"":{totalCorrect},
+            ""wrong_pairs"":{misses}
+        }}";
+        //FormManager.Instance.SetGameData(data);
+
         if (remainingTime < PlayerPrefs.GetFloat(username + "cards"))
         {
             PlayerPrefs.SetFloat(username + "cards", remainingTime);

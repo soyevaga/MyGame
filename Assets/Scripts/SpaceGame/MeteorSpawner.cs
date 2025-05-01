@@ -103,7 +103,10 @@ public class MeteorSpawner : MonoBehaviour
            
         if (meteorSpeed <= 0) meteorSpeed = 1f;
     }
-
+    public float GetMeteorSpeed()
+    {
+        return meteorSpeed;
+    }
     public void InitialSpeed(GameManager.mode mode)
     {
         if (mode == GameManager.mode.lineal)

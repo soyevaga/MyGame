@@ -52,8 +52,6 @@ public class UIManager : MonoBehaviour
                 username = DateTime.Now.ToString("ddMMyyyyHHmmss");
                 PlayerPrefs.SetString("username", username);
                 string gender = genderDropdown.options[genderDropdown.value].text;
-                PlayerPrefs.SetString("gender", gender);
-                PlayerPrefs.SetInt("age", myYear);
 
                 string[] games = { "SpaceScene", "CardsScene", "TilesScene" };
                 // Random asignation
@@ -85,6 +83,7 @@ public class UIManager : MonoBehaviour
                 PlayerPrefs.SetInt("CurrentGameNumber", 1);
                 PlayerPrefs.SetInt("end", 0);
                 PlayerPrefs.Save();
+                DBManager.Instance.GenerateUserJSON(gender, myYear);
                 SceneManager.LoadScene(PlayerPrefs.GetString("Game1"));
             }
         }
@@ -144,4 +143,6 @@ public class UIManager : MonoBehaviour
             ageInput.text = "";
         }
     }
+
+    
 }

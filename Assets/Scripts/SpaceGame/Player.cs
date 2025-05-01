@@ -7,10 +7,16 @@ public class Player : MonoBehaviour
     [SerializeField] private float speed = 10f;
     [SerializeField] private PoolGenerator pool = null;
     [SerializeField] private Transform projectilePoint = null;
+    private int shoots;
+    void Start()
+    {
+        shoots = 0;
+    }
     void Update()
     {
         if (Input.GetKeyDown("space"))
         {
+            shoots++;
             GameObject newProjectile = pool.GetObject();
             newProjectile.transform.parent = null;
             newProjectile.transform.position = projectilePoint.position;
@@ -33,5 +39,10 @@ public class Player : MonoBehaviour
     {
         pool.DeleteObject(obj);
     }    
+
+    public int GetShoots()
+    {
+        return shoots;
+    }
 }
 
