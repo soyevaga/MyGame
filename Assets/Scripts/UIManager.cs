@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -25,19 +26,11 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    private void Start()
+
+    void Start()
     {
         username = PlayerPrefs.GetString("username");
-        if (PlayerPrefs.HasKey("end") && PlayerPrefs.GetInt("end") == 1)
-        {
-            PlayerPrefs.SetInt("end", 0);
-            PlayerPrefs.Save();
-            ShowEnd();
-        }
-        else
-        {
-            ShowMenu(); 
-        }
+        ShowMenu();
     }
     public void GameScene()
     {
@@ -81,8 +74,6 @@ public class UIManager : MonoBehaviour
                     PlayerPrefs.SetString("Type3", "Exponencial");
                 }
                 PlayerPrefs.SetInt("CurrentGameNumber", 1);
-                PlayerPrefs.SetInt("end", 0);
-                PlayerPrefs.Save();
                 DBManager.Instance.GenerateUserJSON(gender, myYear);
                 SceneManager.LoadScene(PlayerPrefs.GetString("Game1"));
             }
@@ -143,6 +134,4 @@ public class UIManager : MonoBehaviour
             ageInput.text = "";
         }
     }
-
-    
 }

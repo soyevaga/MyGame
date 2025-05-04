@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -51,13 +50,6 @@ public class FormManager : MonoBehaviour
 
     void Start()
     {
-        gameNumber = PlayerPrefs.GetInt("CurrentGameNumber");
-        if (PlayerPrefs.GetString("Game" + gameNumber) == "TilesScene")
-            gameName = "tiles";
-        else if (PlayerPrefs.GetString("Game" + gameNumber) == "CardsScene")
-            gameName = "cards";
-        else if (PlayerPrefs.GetString("Game" + gameNumber) == "SpaceScene")
-            gameName = "space";
         toggleSelected = new Toggle[14];
         panel1.SetActive(true);
         panel2.SetActive(false);
@@ -116,18 +108,16 @@ public class FormManager : MonoBehaviour
     public void FinishButton()
     {
         bool allTogglesSelected = panel1TogglesSelected && CheckTogglesPanel(2);
-
         if (!allTogglesSelected)
         {
             StartCoroutine(Warning());
         }
         else
         {
+            gameNumber = PlayerPrefs.GetInt("CurrentGameNumber");
             DBManager.Instance.GenerateFormJSON(GenerateJSON());    
             if (gameNumber == 3)
             {
-                PlayerPrefs.SetInt("end", 1);
-                PlayerPrefs.Save();
                 SceneManager.LoadScene("MenuScene");
             }
             else
@@ -145,11 +135,17 @@ public class FormManager : MonoBehaviour
         warningText.gameObject.SetActive(true);
         yield return new WaitForSeconds(2f);
         warningText.gameObject.SetActive(false);
-    }    
+    }
 
-    public string GenerateJSON()
+    private string GenerateJSON()
     {
-        
+        if (PlayerPrefs.GetString("Game" + gameNumber) == "TilesScene")
+            gameName = "tiles";
+        else if (PlayerPrefs.GetString("Game" + gameNumber) == "CardsScene")
+            gameName = "cards";
+        else if (PlayerPrefs.GetString("Game" + gameNumber) == "SpaceScene")
+            gameName = "space";
+
         Form form = new Form
         {
             userID = PlayerPrefs.GetString("username"),

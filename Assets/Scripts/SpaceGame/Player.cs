@@ -16,11 +16,14 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown("space"))
         {
-            shoots++;
             GameObject newProjectile = pool.GetObject();
-            newProjectile.transform.parent = null;
-            newProjectile.transform.position = projectilePoint.position;
-            newProjectile.GetComponent<Projectile>().SetPlayer(this);      
+            if (newProjectile != null)
+            {
+                shoots++;
+                newProjectile.transform.parent = null;
+                newProjectile.transform.position = projectilePoint.position;
+                newProjectile.GetComponent<Projectile>().SetPlayer(this);
+            }
         }
     }
     void FixedUpdate()

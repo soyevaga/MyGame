@@ -10,6 +10,7 @@ public class DBManager : MonoBehaviour
     private int gameNumber;
     private string gameName;
     private string token;
+    private float remainingTime;
     
     public class TokenResponse
     {
@@ -47,24 +48,25 @@ public class DBManager : MonoBehaviour
 
     void Start()
     {
-        gameNumber = PlayerPrefs.GetInt("CurrentGameNumber");
-        if (PlayerPrefs.GetString("Game" + gameNumber) == "TilesScene")
-            gameName = "tiles";
-        else if (PlayerPrefs.GetString("Game" + gameNumber) == "CardsScene")
-            gameName = "cards";
-        else if (PlayerPrefs.GetString("Game" + gameNumber) == "SpaceScene")
-            gameName = "space";
+        StartCoroutine(LoginRequest());
+        remainingTime = 86000f;
     }
-
+    private void Update()
+    {
+        remainingTime-= Time.deltaTime;
+        if (remainingTime <= 0)
+        {
+            StartCoroutine(LoginRequest());
+            remainingTime = 86000f;
+        }
+    }
     public void GenerateFormJSON(string form)
     {
         StartCoroutine(GenerateForm(form));       
 
     }
     IEnumerator GenerateForm(string form)
-    {
-        yield return StartCoroutine(LoginRequest());
-        
+    {        
         string data = $@"{{       
             ""username"": ""TFGEvaAtencion"",
             ""token"" : ""{token}"",
@@ -74,9 +76,33 @@ public class DBManager : MonoBehaviour
 
         yield return StartCoroutine(PostRequest(data));
     }
+    public void GenerateGameJSON(string game)
+    {
+        StartCoroutine(GenerateGame(game));
+
+    }
+    IEnumerator GenerateGame(string game)
+    {
+        gameNumber = PlayerPrefs.GetInt("CurrentGameNumber");
+        if (PlayerPrefs.GetString("Game" + gameNumber) == "TilesScene")
+            gameName = "tiles";
+        else if (PlayerPrefs.GetString("Game" + gameNumber) == "CardsScene")
+            gameName = "cards";
+        else if (PlayerPrefs.GetString("Game" + gameNumber) == "SpaceScene")
+            gameName = "space";
+
+
+        string data = $@"{{       
+            ""username"": ""TFGEvaAtencion"",
+            ""token"" : ""{token}"",
+            ""table"" : ""{gameName}"",
+            ""data"" :{game}
+        }}";
+
+        yield return StartCoroutine(PostRequest(data));
+    }
     IEnumerator PostRequest(string data)
     {
-
         UnityWebRequest request = new UnityWebRequest("https://tfvj.etsii.urjc.es/rest/insert", "POST");
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(data);
@@ -137,7 +163,6 @@ public class DBManager : MonoBehaviour
 
     IEnumerator GenerateUser(string gender, int age)
     {
-        yield return StartCoroutine(LoginRequest());
         User newUser = new User
         {
             userID = PlayerPrefs.GetString("username"),

@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using static TilesGameManager;
+using System;
 
 public class CardsGameManager : GameManager
 {
@@ -43,6 +45,17 @@ public class CardsGameManager : GameManager
     private bool isGenerating;
     private bool isChecking;
     private bool newGame;
+    public class CardsJSON
+    {
+        public string userID;
+        public string difficulty;
+        public int orden;
+        public string time;
+        public int clicks;
+        public int level;
+        public int correct_pairs;
+        public int wrong_pairs;
+    }
     private void Awake()
     {
         if (Instance == null)
@@ -148,6 +161,7 @@ public class CardsGameManager : GameManager
     }
     private IEnumerator NewLevel()
     {
+        DBManager.Instance.GenerateGameJSON(GenerateJSON());
         isGenerating = true;
         if (currentLevel > 1)
         {
@@ -292,25 +306,13 @@ public class CardsGameManager : GameManager
     }
     public void EndGame()
     {
-        StartCoroutine(EndGameCoroutine());
-    }
-    private IEnumerator EndGameCoroutine()
-    {
-        yield return new WaitForSeconds(1f);
+        Time.timeScale = 0f;
         gamePanel.SetActive(false);
         tutorialPanel.SetActive(false);
         gameOverPanel.SetActive(false);
         endGamePanel.SetActive(true);
         gameOverTimeText.text = TimeFormat(remainingTime);
-
-        string data = $@"
-            ""clicks"":{clicks},
-            ""level"":{currentLevel},
-            ""correct_pairs"":{totalCorrect},
-            ""wrong_pairs"":{misses}
-        }}";
-        //FormManager.Instance.SetGameData(data);
-
+        
         if (remainingTime < PlayerPrefs.GetFloat(username + "cards"))
         {
             PlayerPrefs.SetFloat(username + "cards", remainingTime);
@@ -360,6 +362,24 @@ public class CardsGameManager : GameManager
     public bool GetIsChecking()
     {
         return isChecking;
+    }
+    private string GenerateJSON()
+    {
+        string time = DateTime.Now.ToString("HH:mm:ss");
+        string difficulty = (gameMode == mode.lineal) ? "Lineal" : "Exponencial";
+        CardsJSON data = new CardsJSON
+        {
+            userID = PlayerPrefs.GetString("username"),
+            difficulty = difficulty,
+            orden = PlayerPrefs.GetInt("CurrentGameNumber"),
+            time = time,
+            clicks = clicks,
+            level = currentLevel,
+            correct_pairs = totalCorrect,
+            wrong_pairs = misses
+        };
+
+        return JsonUtility.ToJson(data);
     }
 }
 

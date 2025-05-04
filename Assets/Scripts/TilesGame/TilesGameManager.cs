@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using static SpaceGameManager;
+using System;
 public class TilesGameManager : GameManager
 {
     public static TilesGameManager Instance { get; private set; }
@@ -40,6 +42,16 @@ public class TilesGameManager : GameManager
     private int restartCounter;
     private int clicks;
     private int totalRestarts;
+    public class TilesJSON
+    {
+        public string userID;
+        public string difficulty;
+        public int orden;
+        public string time;
+        public int clicks;
+        public int level;
+        public int restarts;
+    }
     private void Awake()
     {
         if (Instance == null)
@@ -68,6 +80,7 @@ public class TilesGameManager : GameManager
         isGameOver = false;
         Time.timeScale = 1f;
         currentLevel = 0;
+        remainingTime = 0f;
         InstantiateGame();
         TutorialButton();
     }
@@ -110,6 +123,7 @@ public class TilesGameManager : GameManager
     }
     public void nextLevel()
     {
+        DBManager.Instance.GenerateGameJSON(GenerateJSON());
         //currentLevel/2 + 1 is the real level
         if (gameMode==mode.lineal)
         {
@@ -215,13 +229,6 @@ public class TilesGameManager : GameManager
         gameOverTimeText.text = TimeFormat(remainingTime);
         gameOverPanel.SetActive(false);
         endGamePanel.SetActive(true);
-
-        string data = $@"
-            ""clicks"":{clicks},
-            ""level"":{currentLevel / 2 + 1},
-            ""restarts"":{totalRestarts}
-        }}";
-        //FormManager.Instance.SetGameData(data);
     }
     public void ReplayButton()
     {
@@ -322,5 +329,22 @@ public class TilesGameManager : GameManager
         currentTutorialImage++;
         if (currentTutorialImage > tutorialImages.Length - 1) currentTutorialImage = 0;
         tutorialImage.sprite = tutorialImages[currentTutorialImage];
+    }
+    private string GenerateJSON()
+    {
+        string time = DateTime.Now.ToString("HH:mm:ss");
+        string difficulty = (gameMode == mode.lineal) ? "Lineal" : "Exponencial";
+        TilesJSON data = new TilesJSON
+        {
+            userID = PlayerPrefs.GetString("username"),
+            difficulty = difficulty,
+            orden = PlayerPrefs.GetInt("CurrentGameNumber"),
+            time = time,
+            clicks=clicks,
+            level=currentLevel/2+1,
+            restarts=totalRestarts
+        };
+
+        return JsonUtility.ToJson(data);
     }
 }

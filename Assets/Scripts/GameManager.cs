@@ -1,4 +1,4 @@
-using TMPro;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,7 +15,7 @@ public abstract class GameManager : MonoBehaviour
     protected void Start()
     {
         username = PlayerPrefs.GetString("username");
-        maxTime = 10f;
+        maxTime = 180f;
     }
     public void MenuButton()
     {

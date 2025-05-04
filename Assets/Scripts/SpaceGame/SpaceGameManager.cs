@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using Unity.VisualScripting;
+using System;
 public class SpaceGameManager : GameManager
 {
     public static SpaceGameManager Instance { get; private set; }
@@ -30,6 +30,19 @@ public class SpaceGameManager : GameManager
     private int selfKills;
     private int oddKills;
     private int evenKills;
+
+    public class SpaceJSON
+    {
+        public string userID;
+        public string difficulty;
+        public int orden;
+        public string time;
+        public int shoots;
+        public int evens_killed;
+        public int odds_killed;
+        public float speed;
+        public int self_killed;
+    }
     private void Awake()
     {
         if (Instance == null)
@@ -73,11 +86,14 @@ public class SpaceGameManager : GameManager
         if (levelTime>=20f)
         {
             levelTime = 0f;
-            checkLevel();
-        }
-        if (remainingTime <= 0)
-        {
-            onGameOver.Invoke();
+            if (remainingTime <= 0)
+            {
+                onGameOver.Invoke();
+            }
+            else
+            {
+                checkLevel();
+            }
         }
         timeText.text = TimeFormat(remainingTime);
         pointsText.text = "Puntos: " + currentPoints + "\n" + "Record: " + recordPoints;
@@ -119,6 +135,7 @@ public class SpaceGameManager : GameManager
     public void endGameAction()
     {
         Time.timeScale = 0f;
+        DBManager.Instance.GenerateGameJSON(GenerateJSON());
         if (currentPoints > PlayerPrefs.GetInt(username + "space"))
         {
             PlayerPrefs.SetInt(username + "space", currentPoints);
@@ -131,15 +148,6 @@ public class SpaceGameManager : GameManager
         punctuationText.text = "Puntos: " + currentPoints + "\n" + "Record: " + recordPoints;
         gameOverPanel.SetActive(false);
         endGamePanel.SetActive(true);
-
-        string data = $@"
-            ""shoots"":{player.GetShoots()},
-            ""evens_killed"":{evenKills},
-            ""odds_killed"":{oddKills},
-            ""speed"":{meteorSpawner.GetMeteorSpeed()},
-            ""self_killed"": {selfKills}
-        }}";
-        //FormManager.Instance.SetGameData(data);
     }
     public void DestroyPlayer(GameObject player)
     {
@@ -160,6 +168,7 @@ public class SpaceGameManager : GameManager
 
     private void checkLevel()
     {
+        DBManager.Instance.GenerateGameJSON(GenerateJSON());
         int goal = meteorSpawner.GetMeteorSize()/2;
         float percentage = (float)currentKills / goal;
         if (percentage <= 0.3)
@@ -196,5 +205,24 @@ public class SpaceGameManager : GameManager
     public mode GetGameMode()
     {
         return gameMode;
+    }
+    private string GenerateJSON()
+    {
+        string time = DateTime.Now.ToString("HH:mm:ss");
+        string difficulty = (gameMode == mode.lineal) ? "Lineal" : "Exponencial";
+        SpaceJSON data = new SpaceJSON
+        {
+            userID = PlayerPrefs.GetString("username"),
+            difficulty=difficulty, 
+            orden= PlayerPrefs.GetInt("CurrentGameNumber"),
+            time= time,
+            shoots= player.GetShoots(),
+            evens_killed= evenKills,
+            odds_killed= oddKills,
+            speed = meteorSpawner.GetMeteorSpeed(), 
+            self_killed= selfKills
+        };
+
+        return JsonUtility.ToJson(data);
     }
 }
