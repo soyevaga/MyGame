@@ -8,6 +8,11 @@ public class SpaceGameManager : GameManager
 {
     public static SpaceGameManager Instance { get; private set; }
 
+    [SerializeField] private AudioSource main;
+    [SerializeField] private AudioSource explosionSound;
+    [SerializeField] private AudioClip backgroundMusic;
+    [SerializeField] private AudioClip gameOver;
+
     [SerializeField] private MeteorSpawner meteorSpawner;
     [SerializeField] private Player player;
     [SerializeField] private TextMeshProUGUI pointsText;
@@ -58,6 +63,10 @@ public class SpaceGameManager : GameManager
     new void Start()
     {
         base.Start();
+        main.clip = backgroundMusic;
+        main.loop = true;
+        main.volume = 0.2f;
+        main.Play();
         Time.timeScale = 1f;
         string type = "Type" + PlayerPrefs.GetInt("CurrentGameNumber");
         if (PlayerPrefs.GetString(type) == "Lineal") gameMode = mode.lineal;
@@ -135,6 +144,10 @@ public class SpaceGameManager : GameManager
     public void endGameAction()
     {
         Time.timeScale = 0f;
+        main.clip = gameOver;
+        main.loop = false;
+        main.volume = 1f;
+        main.Play();
         DBManager.Instance.GenerateGameJSON(GenerateJSON());
         if (currentPoints > PlayerPrefs.GetInt(username + "space"))
         {
@@ -160,9 +173,9 @@ public class SpaceGameManager : GameManager
     }
     private IEnumerator DestroyPlayerSequence(GameObject explosion, GameObject player)
     {
-        yield return new WaitForSeconds(1f);
+        explosionSound.Play();
+        yield return new WaitForSeconds(0.8f);
         explosion.SetActive(false);
-        yield return new WaitForSeconds(0.2f);
         player.SetActive(true);
     }
 

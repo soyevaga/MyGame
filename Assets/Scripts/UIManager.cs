@@ -7,6 +7,8 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
+    [SerializeField] private AudioSource click;
+    [SerializeField] private AudioSource main;
     [SerializeField] private TMP_InputField ageInput;
     [SerializeField] private TextMeshProUGUI warningText;
     [SerializeField] private TMP_Dropdown birthdayDropdown;
@@ -14,6 +16,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject endPanel;
     [SerializeField] private GameObject gamesPanel;
     [SerializeField] private GameObject menuPanel;
+    [SerializeField] private GameObject beginPanel;
     private string username;
     private void Awake()
     {
@@ -30,7 +33,7 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         username = PlayerPrefs.GetString("username");
-        ShowMenu();
+        ShowBegin();
     }
     public void GameScene()
     {
@@ -63,18 +66,54 @@ public class UIManager : MonoBehaviour
                 {
                     PlayerPrefs.SetString("birthday", "Par");
                     PlayerPrefs.SetString("Type1", "Lineal");
-                    PlayerPrefs.SetString("Type2", "Exponencial");
+                    PlayerPrefs.SetString("Type2", "Lineal");
                     PlayerPrefs.SetString("Type3", "Lineal");
                 }
                 else // Odd
                 {
                     PlayerPrefs.SetString("birthday", "Impar");
                     PlayerPrefs.SetString("Type1", "Exponencial");
-                    PlayerPrefs.SetString("Type2", "Lineal");
+                    PlayerPrefs.SetString("Type2", "Exponencial");
                     PlayerPrefs.SetString("Type3", "Exponencial");
                 }
+                
+                if (PlayerPrefs.GetString("Game1") == "CardsScene")
+                {
+                    if (birthdayDropdown.value == 0) // Even
+                    {
+                        PlayerPrefs.SetString("Type1", "Exponencial");
+                    }
+                    else // Odd
+                    {
+                        PlayerPrefs.SetString("Type1", "Lineal");
+                    }
+                }
+                else if (PlayerPrefs.GetString("Game2") == "CardsScene")
+                {
+                    if (birthdayDropdown.value == 0) // Even
+                    {
+                        PlayerPrefs.SetString("Type2", "Exponencial");
+                    }
+                    else // Odd
+                    {
+                        PlayerPrefs.SetString("Type2", "Lineal");
+                    }
+                }
+                else
+                {
+                    if (birthdayDropdown.value == 0) // Even
+                    {
+                        PlayerPrefs.SetString("Type3", "Exponencial");
+                    }
+                    else // Odd
+                    {
+                        PlayerPrefs.SetString("Type3", "Lineal");
+                    }
+                }
+                
                 PlayerPrefs.SetInt("CurrentGameNumber", 1);
                 DBManager.Instance.GenerateUserJSON(gender, myYear);
+                main.Pause();
                 SceneManager.LoadScene(PlayerPrefs.GetString("Game1"));
             }
         }
@@ -102,13 +141,24 @@ public class UIManager : MonoBehaviour
         menuPanel.SetActive(true);
         endPanel.SetActive(false);
         gamesPanel.SetActive(false);
+        beginPanel.SetActive(false);
     }
 
     public void ShowEnd()
     {
+        main.Play();
         menuPanel.SetActive(false);
         endPanel.SetActive(true);
+        gamesPanel.SetActive(false); 
+        beginPanel.SetActive(false);
+    }
+    public void ShowBegin()
+    {
+        main.Play();
+        menuPanel.SetActive(false);
+        endPanel.SetActive(false);
         gamesPanel.SetActive(false);
+        beginPanel.SetActive(true);
     }
 
     public void QuitButton()
@@ -133,5 +183,13 @@ public class UIManager : MonoBehaviour
             warningText.text = "Introduce una edad válida";
             ageInput.text = "";
         }
+    }
+    public void Click()
+    {
+        click.Play();
+    }
+    public void Play()
+    {
+        main.Play();
     }
 }

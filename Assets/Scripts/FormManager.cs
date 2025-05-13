@@ -8,6 +8,8 @@ public class FormManager : MonoBehaviour
 {
     public static FormManager Instance { get; private set; }
 
+    [SerializeField] private AudioSource wrong;
+    [SerializeField] private AudioSource main;
     [SerializeField] private TextMeshProUGUI warningText;
     [SerializeField] private ToggleGroup[] toggleGroups;
     [SerializeField] private GameObject panel1;
@@ -50,6 +52,7 @@ public class FormManager : MonoBehaviour
 
     void Start()
     {
+        main.Play();
         toggleSelected = new Toggle[14];
         panel1.SetActive(true);
         panel2.SetActive(false);
@@ -86,12 +89,15 @@ public class FormManager : MonoBehaviour
         bool toReturn = true;
         for (int i = lowLim; i < highLim; i++)
         {
+            TextMeshProUGUI question = toggleGroups[i].transform.parent.GetComponentInChildren<TextMeshProUGUI>();
             if (!toggleGroups[i].AnyTogglesOn())
-            {
+            {                
+                question.color = Color.red;
                 toReturn = false;
             }
             else
             {
+                question.color = Color.black;
                 foreach (Toggle toggle in toggleGroups[i].GetComponentsInChildren<Toggle>())
                 {
                     if (toggle.isOn)
@@ -107,17 +113,19 @@ public class FormManager : MonoBehaviour
     }
     public void FinishButton()
     {
-        bool allTogglesSelected = panel1TogglesSelected && CheckTogglesPanel(2);
+        bool allTogglesSelected = CheckTogglesPanel(2) && panel1TogglesSelected ;
         if (!allTogglesSelected)
         {
+            wrong.Play();
             StartCoroutine(Warning());
         }
         else
         {
             gameNumber = PlayerPrefs.GetInt("CurrentGameNumber");
-            DBManager.Instance.GenerateFormJSON(GenerateJSON());    
+            DBManager.Instance.GenerateFormJSON(GenerateJSON());
             if (gameNumber == 3)
             {
+                UIManager.Instance.Play();
                 SceneManager.LoadScene("MenuScene");
             }
             else
@@ -125,6 +133,7 @@ public class FormManager : MonoBehaviour
                 PlayerPrefs.SetInt("CurrentGameNumber", gameNumber + 1);
                 PlayerPrefs.Save();
                 string game = "Game" + (gameNumber + 1);
+                main.Pause(); 
                 SceneManager.LoadScene(PlayerPrefs.GetString(game));
             }
         }

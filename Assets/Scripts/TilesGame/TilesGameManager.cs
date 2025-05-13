@@ -3,12 +3,18 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using static SpaceGameManager;
 using System;
+using System.Collections;
 public class TilesGameManager : GameManager
 {
     public static TilesGameManager Instance { get; private set; }
 
+    [SerializeField] private AudioSource main;
+    [SerializeField] private AudioClip backgroundMusic;
+    [SerializeField] private AudioClip countdown;
+    [SerializeField] private AudioClip gameOver;
+
+    [SerializeField] private TextMeshProUGUI countdownText;
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private TextMeshProUGUI timeText;
     [SerializeField] private TextMeshProUGUI levelText;
@@ -23,9 +29,12 @@ public class TilesGameManager : GameManager
     [SerializeField] private GameObject speed;
     [SerializeField] private BotSpawner botSpawner;
     [SerializeField] private Slider speedSlider;
+    [SerializeField] private Button pauseButton;
+    [SerializeField] private Sprite pauseSprite;
+    [SerializeField] private Sprite playSprite;
     [SerializeField] private Image tutorialImage;
     [SerializeField] private Sprite[] tutorialImages;
-    [SerializeField] private Button[] buttons;
+    [SerializeField] private MyButton[] buttons;
     [SerializeField] public UnityEvent onRestartLevel;
     [SerializeField] public UnityEvent onNextLevel;
     [SerializeField] public UnityEvent onGameOver;
@@ -42,6 +51,7 @@ public class TilesGameManager : GameManager
     private int restartCounter;
     private int clicks;
     private int totalRestarts;
+    private bool isPaused;
     public class TilesJSON
     {
         public string userID;
@@ -67,6 +77,7 @@ public class TilesGameManager : GameManager
     new void Start()
     {
         base.Start();
+        isPaused = false;
         clicks = 0;
         totalRestarts = 0;
         string type = "Type" + PlayerPrefs.GetInt("CurrentGameNumber");
@@ -78,15 +89,14 @@ public class TilesGameManager : GameManager
             PlayerPrefs.Save();
         }
         isGameOver = false;
-        Time.timeScale = 1f;
         currentLevel = 0;
         remainingTime = 0f;
-        InstantiateGame();
+        GridManager.Instance.GenerateGrid();
+        AssignButtons();
         TutorialButton();
     }
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) clicks++;
         if (!isGameOver)
         {
             remainingTime += Time.deltaTime;
@@ -108,14 +118,16 @@ public class TilesGameManager : GameManager
             }
             if (Input.GetMouseButtonDown(0))
             {
+                clicks++;
                 Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Button button = ToggledButton();
+                MyButton button = ToggledButton();
+                int id = -1;
                 if (button != null)
                 {
-                    int change = GridManager.Instance.ChangeTile(mouseWorldPos, button.GetID());
-                    button.SetNumber(change);
+                    id = button.GetID();
                 }
-
+                int change = GridManager.Instance.ChangeTile(mouseWorldPos, id);
+                if(button!=null) button.SetNumber(change);
             }
             levelText.text = "Nivel " + (currentLevel/2 + 1);
             pointsText.text = "Salvados: " + currentSaved;
@@ -169,29 +181,56 @@ public class TilesGameManager : GameManager
         else
         {
             restartCounter = 0;
-            InstantiateGame();
+            GridManager.Instance.GenerateGrid();
+            AssignButtons();
+            StartCoroutine(InstantiateGame());
         }
     }
 
     public void RestartLevel()
     {
+        botSpawner.PauseAllBots(true);
         restartCounter++;
         totalRestarts++;
-        InstantiateGame();
+
+        StartCoroutine(InstantiateGame());
     }
-    public void InstantiateGame()
+    public IEnumerator InstantiateGame()
     {
-        AssignButtons();
         SetSpeedScale();
-        GridManager.Instance.GenerateGrid();
-        botSpawner.Spawner(botTypesPerLevel[currentLevel/2]);
         currentSaved = 0;
         currentDead = 0;
-        deadTime = 3f;
+        deadTime = 1f;
+        if(isPaused)
+        {
+            isPaused = false;
+            pauseButton.GetComponent<Image>().sprite = pauseSprite;
+            Time.timeScale = 1;
+        }
+        main.clip = countdown;
+        main.loop = false;
+        main.Play();
+        countdownText.text = "3";
+        yield return new WaitForSeconds(1f);
+        countdownText.text = "2";
+        yield return new WaitForSeconds(1f);
+        countdownText.text = "1";
+        yield return new WaitForSeconds(1f);
+        countdownText.text = "";
+        yield return new WaitForSeconds(0.5f);
+        main.clip = backgroundMusic;
+        main.loop = true;
+        main.Play();
+        Time.timeScale = 1f;
+
+        botSpawner.Spawner(botTypesPerLevel[currentLevel/2]);
     }
     public void GameOver()
     {
         Time.timeScale = 0f;
+        main.clip = gameOver;
+        main.loop = false;
+        main.Play();
         isGameOver = true;
         gamePanel.SetActive(false);
         tutorialPanel.SetActive(false);
@@ -212,6 +251,9 @@ public class TilesGameManager : GameManager
     public void EndGame()
     {
         Time.timeScale = 0f;
+        main.clip = gameOver;
+        main.loop = false;
+        main.Play();
         isGameOver = true;
         gamePanel.SetActive(false);
         tutorialPanel.SetActive(false);
@@ -249,6 +291,7 @@ public class TilesGameManager : GameManager
     public void ExitTutorialButton()
     {
         Time.timeScale = 1f;
+        StartCoroutine(InstantiateGame());
         botSpawner.PauseAllBots(false);
         currentTutorialImage = 0;
         tutorialImage.sprite = tutorialImages[currentTutorialImage];
@@ -256,10 +299,10 @@ public class TilesGameManager : GameManager
         gameOverPanel.SetActive(false);
         gamePanel.SetActive(true);
     }
-    public Button ToggledButton()
+    public MyButton ToggledButton()
     {
-        Button toggled = null;
-        foreach (Button button in buttons)
+        MyButton toggled = null;
+        foreach (MyButton button in buttons)
         {
             if (button.IsToggled())
             {
@@ -275,7 +318,7 @@ public class TilesGameManager : GameManager
         Map[] maps = GridManager.Instance.GetMaps(); 
         int[] arrows = maps[currentLevel].GetArrows();
         int id = 0;
-        foreach(Button button in buttons)
+        foreach(MyButton button in buttons)
         {
             button.gameObject.SetActive(true);
             button.SetID(id);
@@ -329,6 +372,23 @@ public class TilesGameManager : GameManager
         currentTutorialImage++;
         if (currentTutorialImage > tutorialImages.Length - 1) currentTutorialImage = 0;
         tutorialImage.sprite = tutorialImages[currentTutorialImage];
+    }
+    public void PauseButton()
+    {
+        if (isPaused)
+        {
+            pauseButton.GetComponent<Image>().sprite = pauseSprite;
+            main.Play();
+            Time.timeScale = 1;
+            isPaused = false;
+        }
+        else
+        {
+            pauseButton.GetComponent<Image>().sprite = playSprite;
+            main.Pause();
+            Time.timeScale = 0;
+            isPaused=true;
+        }
     }
     private string GenerateJSON()
     {

@@ -14,6 +14,7 @@ public class CardSpawner : MonoBehaviour
     }
     public void Spawner(int cardsToCreate)
     {
+        
         Dictionary<int, int> dict = new Dictionary<int, int>(cardsToCreate / 2);
         for (int i = 0; i < cardsToCreate; i++)
         {
@@ -26,6 +27,7 @@ public class CardSpawner : MonoBehaviour
                 card.FlipCard(3f);
             }
         }
+        
     }
     public void Exchange(int times)
     {
@@ -60,7 +62,7 @@ public class CardSpawner : MonoBehaviour
     private IEnumerator Delete(Card card)
     {
         card.Restart();
-        yield return new WaitForSeconds(1.1f);
+        yield return new WaitForSeconds(0.8f);
         pool.DeleteObject(card.gameObject);
     }
     private Material FindMaterial(Dictionary<int,int> dict, int maxMaterial)

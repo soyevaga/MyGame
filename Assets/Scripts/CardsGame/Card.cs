@@ -7,6 +7,8 @@ public class Card : MonoBehaviour
     [SerializeField] private Renderer backCard = null;
     [SerializeField] private Material backStandard=null;
     [SerializeField] private Material backSelected = null;
+    [SerializeField] private AudioSource rotate;
+    [SerializeField] private AudioSource exchange;
     [SerializeField] private bool isFaceDown = true;
     private bool isRotating = false;
     
@@ -29,7 +31,7 @@ public class Card : MonoBehaviour
         Vector3 mid2 = center - normal * radius + Vector3.forward * 0.5f + Vector3.up * 0.2f; ;
         Vector3[] path1 = new Vector3[] { pos1, mid1, pos2 };
         Vector3[] path2 = new Vector3[] { pos2, mid2, pos1 };
-
+        exchange.Play();
         iTween.MoveTo(c1, iTween.Hash(
             "path", path1,
             "time", 2f,
@@ -73,16 +75,17 @@ public class Card : MonoBehaviour
      
     private IEnumerator Rotate(int dir)
     {
+        rotate.Play();
         isRotating = true;
         transform.position = new Vector3(transform.position.x, transform.position.y + 0.2f, transform.position.z);
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
         iTween.RotateBy(gameObject, iTween.Hash(
             "z", dir*0.5f,
             "easeType", iTween.EaseType.easeInOutQuart,
-            "time", 0.8f
+            "time", 0.5f
         ));
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.5f);
 
         transform.position = new Vector3(transform.position.x, transform.position.y - 0.2f, transform.position.z);
         isRotating = false;

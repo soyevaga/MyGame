@@ -315,14 +315,14 @@ public class GridManager : MonoBehaviour
 
                 new Map(new int[,] //LEVEL 8
                         {
-                            { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1 },
-                            { 0, 1, 1, 0, 1, 3, 1, 0, 0, 0, 1, 0 },
-                            { 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1 },
-                            { 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+                            { 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1 },
+                            { 0, 0, 0, 0, 1, 3, 1, 0, 0, 0, 1, 0 },
+                            { 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1 },
+                            { 0, 2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
                             { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-                            { 0, 0, 1, 1, 0, 1, 0, 0, 0, 4, 1, 0 },
-                            { 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1 },
-                            { 1, 1, 0, 1, 5, 0, 0, 0, 0, 1, 1, 0 }
+                            { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+                            { 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 4, 1 },
+                            { 0, 1, 0, 1, 5, 1, 0, 0, 0, 1, 1, 0 }
                         },
                         new int[]
                         {
@@ -335,9 +335,9 @@ public class GridManager : MonoBehaviour
                 ),
                 new Map(new int[,] //LEVEL 8
                         {
-                            { 0, 0, 0, 0, 1, 0, 0, 1, 0, 3, 0, 1 },
+                            { 0, 0, 0, 0, 1, 0, 0, 3, 0, 1, 0, 1 },
                             { 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1 },
-                            { 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1 },
+                            { 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1 },
                             { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 },
                             { 0, 1, 1, 0, 0, 0, 2, 1, 0, 1, 0, 1 },
                             { 1, 0, 0, 1, 5, 1, 0, 0, 0, 0, 0, 0 },
@@ -437,21 +437,50 @@ public class GridManager : MonoBehaviour
         Tile tile = tilemap.GetTile<Tile>(cellPosition);
         if (tile != null)
         {
-            if (tile == moveTiles[tileIndex])
+            if (tile != mainTiles[1] && !goalTiles.Contains(tile))
             {
-                tilemap.SetTile(cellPosition, mainTiles[0]);
-                return 1;
-            }
-            else if (tile != mainTiles[1] && !goalTiles.Contains(tile))
-            {
-                if (TilesGameManager.Instance.GetButtonNumber(tileIndex) > 0)
+                if (tileIndex == -1)
                 {
                     if (moveTiles.Contains(tile))
                     {
+                        tilemap.SetTile(cellPosition, mainTiles[0]);
                         TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
                     }
-                    tilemap.SetTile(cellPosition, moveTiles[tileIndex]);
-                    return -1;
+                }
+                else
+                {
+                    if (tile == mainTiles[0])
+                    {
+                        if (TilesGameManager.Instance.GetButtonNumber(tileIndex) > 0)
+                        {
+                            tilemap.SetTile(cellPosition, moveTiles[tileIndex]);
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        if(tile == moveTiles[tileIndex])
+                        {
+                            tilemap.SetTile(cellPosition, mainTiles[0]);
+                            return 1;
+                        }
+                        else
+                        {
+                            if (TilesGameManager.Instance.GetButtonNumber(tileIndex) > 0)
+                            {
+                                TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
+                                tilemap.SetTile(cellPosition, moveTiles[tileIndex]);
+                                return -1;
+                            }
+                            else
+                            {
+                                tilemap.SetTile(cellPosition, mainTiles[0]);
+                                TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
+                            }
+
+                        }                      
+
+                    }
                 }
             }
         }

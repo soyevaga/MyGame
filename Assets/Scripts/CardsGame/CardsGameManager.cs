@@ -13,6 +13,12 @@ public class CardsGameManager : GameManager
 {
     public static CardsGameManager Instance { get; private set; }
 
+    [SerializeField] private AudioSource wrong;
+    [SerializeField] private AudioSource level;
+    [SerializeField] private AudioSource main;
+    [SerializeField] private AudioClip backgroundMusic;
+    [SerializeField] private AudioClip gameOver;
+
     [SerializeField] private TextMeshProUGUI newlevelText;
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private TextMeshProUGUI pointsText;
@@ -71,6 +77,9 @@ public class CardsGameManager : GameManager
     new void Start()
     {
         base.Start();
+        main.clip = backgroundMusic;
+        main.loop = true;
+        main.Play();
         string type = "Type"+  PlayerPrefs.GetInt("CurrentGameNumber");
         if (PlayerPrefs.GetString(type) == "Lineal") gameMode = mode.lineal;
         else gameMode = mode.exponential;
@@ -123,6 +132,7 @@ public class CardsGameManager : GameManager
         {
             array[0].FlipCard(1f);
             array[1].FlipCard(1f);
+            wrong.Play();
             array[0].Restart();
             array[1].Restart();
             misses++;
@@ -137,7 +147,7 @@ public class CardsGameManager : GameManager
     }
     private IEnumerator NextLevelSequence()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1f);
         onNextLevel.Invoke();
     }
 
@@ -145,19 +155,21 @@ public class CardsGameManager : GameManager
     {
         c1.RevealCard();
         c2.RevealCard();
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.8f);
         cardSpawner.DeleteCard(c1);
         cardSpawner.DeleteCard(c2);
     }
     public void nextLevel()
     {
         correctPairs = 0;
-        StartCoroutine(NewLevel());
         if (remainingTime >= maxTime)
         {
             onGameOver.Invoke();
         }
-        
+        else
+        {
+            StartCoroutine(NewLevel());
+        }
     }
     private IEnumerator NewLevel()
     {
@@ -252,9 +264,10 @@ public class CardsGameManager : GameManager
         }
         currentMisses = 0;
         levelTime = 0f;
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
+        level.Play();
         newlevelText.text = "NIVEL " + currentLevel;       
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.8f);
         newlevelText.text = "";
         yield return new WaitForSeconds(0.5f);
         cardSpawner.Spawner(cardsNumber);
@@ -288,6 +301,9 @@ public class CardsGameManager : GameManager
 
     private IEnumerator GameOverCoroutine()
     {
+        main.clip = gameOver;
+        main.loop = false;
+        main.Play();
         yield return new WaitForSeconds(1f);
         gamePanel.SetActive(false);
         tutorialPanel.SetActive(false);
@@ -311,6 +327,9 @@ public class CardsGameManager : GameManager
         tutorialPanel.SetActive(false);
         gameOverPanel.SetActive(false);
         endGamePanel.SetActive(true);
+        main.clip = gameOver;
+        main.loop = false;
+        main.Play();
         gameOverTimeText.text = TimeFormat(remainingTime);
         
         if (remainingTime < PlayerPrefs.GetFloat(username + "cards"))

@@ -4,31 +4,47 @@ using UnityEngine.Rendering;
 
 public class MeteorSpawner : MonoBehaviour
 {
+    [SerializeField] private AudioSource explosionSound;
     [SerializeField] private PoolGenerator explosionPool = null;
     [SerializeField] private PoolGenerator meteorPool = null;
-    [SerializeField] private float minX = -7f;
-    [SerializeField] private float maxX = 7f;
-    private float timeDelay = 1f;
+    [SerializeField] private float[] posX = {-7f,-5f, -3f, -1f, 1f,3f,5f,7f};
+    private float timeDelay = 1.1f;
     private int oddMeteors;
     private int evenMeteors;
     private int size;
     private float meteorSpeed;
+    private bool speedChange;
+    private int lastIndx;
     void Start()
     {
+        lastIndx = 0;
         size = (int)(20 / timeDelay);
         if (size % 2 != 0) size --;
         oddMeteors = 0;
         evenMeteors = 0;
+        speedChange= false;        
         InvokeRepeating(nameof(Spawner), 0f, timeDelay);
     }
 
     void Spawner()
     {
+        if (speedChange)
+        {
+            speedChange = false;
+            StartCoroutine(Wait());
+        }
         GameObject newMeteor = meteorPool.GetObject();
         if (newMeteor != null)
         {
-            newMeteor.transform.parent = this.transform;
-            float xPosition = Random.Range(minX, maxX);
+            newMeteor.transform.parent = transform;
+            int xIndx = Random.Range(0, posX.Length);
+            if (xIndx == lastIndx)
+            {
+                if (xIndx > 0) xIndx--;
+                else xIndx++;
+            }
+            lastIndx= xIndx;
+            float xPosition = posX[xIndx];
             newMeteor.transform.position = new Vector3(xPosition, transform.position.y, transform.position.z);
             Meteor m = newMeteor.gameObject.GetComponentInParent<Meteor>();
             m.SetSpeed(meteorSpeed);
@@ -59,6 +75,10 @@ public class MeteorSpawner : MonoBehaviour
             m.SetNumber(number);
         }
     }
+    private IEnumerator Wait()
+    {
+        yield return new WaitForSeconds(1f);
+    }
     public void DeleteMeteor(GameObject obj)
     {
         GameObject explosion = explosionPool.GetObject();
@@ -70,6 +90,7 @@ public class MeteorSpawner : MonoBehaviour
 
     private IEnumerator DeleteExplosion(GameObject explosion, float tiempo)
     {
+        explosionSound.Play();
         yield return new WaitForSeconds(tiempo);
         explosion.SetActive(false);
     }
@@ -82,6 +103,7 @@ public class MeteorSpawner : MonoBehaviour
     
     public void SetMeteorSpeed(float change)
     {
+        speedChange = true;
         if (SpaceGameManager.Instance.GetGameMode() == GameManager.mode.lineal)
         {
             meteorSpeed += change;
@@ -111,11 +133,11 @@ public class MeteorSpawner : MonoBehaviour
     {
         if (mode == GameManager.mode.lineal)
         {
-            meteorSpeed = 3f;
+            meteorSpeed = 2f;
         }
         else
         {
-            meteorSpeed = 1.5f * 2.25f;
+            meteorSpeed = 2.25f;
         }
     }
 }
