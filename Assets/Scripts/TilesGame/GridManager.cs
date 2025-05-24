@@ -18,6 +18,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private float cellSize;
     private Vector3[] directions = { new Vector3(0, -25.6f, 0),  new Vector3(-25.6f, 0, 0), new Vector3(25.6f, 0, 0), new Vector3(0, 25.6f, 0)};
     private Map[] maps;
+    private int arrowsDeleted;
     private void Awake()
     {
         if (Instance == null)
@@ -361,6 +362,10 @@ public class GridManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    void Start( ) 
+    {
+        arrowsDeleted=0;
+    }
     public int GetWidth()
     {
         return width;
@@ -443,6 +448,7 @@ public class GridManager : MonoBehaviour
                 {
                     if (moveTiles.Contains(tile))
                     {
+                        arrowsDeleted++;
                         tilemap.SetTile(cellPosition, mainTiles[0]);
                         TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
                     }
@@ -461,6 +467,7 @@ public class GridManager : MonoBehaviour
                     {
                         if(tile == moveTiles[tileIndex])
                         {
+                            arrowsDeleted++;
                             tilemap.SetTile(cellPosition, mainTiles[0]);
                             return 1;
                         }
@@ -468,12 +475,14 @@ public class GridManager : MonoBehaviour
                         {
                             if (TilesGameManager.Instance.GetButtonNumber(tileIndex) > 0)
                             {
+                                arrowsDeleted++;
                                 TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
                                 tilemap.SetTile(cellPosition, moveTiles[tileIndex]);
                                 return -1;
                             }
                             else
                             {
+                                arrowsDeleted++;
                                 tilemap.SetTile(cellPosition, mainTiles[0]);
                                 TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
                             }
@@ -531,6 +540,10 @@ public class GridManager : MonoBehaviour
         {
             icon.SetActive(false);
         }
+    }
+    public int GetArrowsDeleted()
+    {
+        return arrowsDeleted;
     }
 }
 

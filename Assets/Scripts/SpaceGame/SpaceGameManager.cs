@@ -47,6 +47,7 @@ public class SpaceGameManager : GameManager
         public int odds_killed;
         public float speed;
         public int self_killed;
+        public float moving_time;
     }
     private void Awake()
     {
@@ -233,7 +234,8 @@ public class SpaceGameManager : GameManager
             evens_killed= evenKills,
             odds_killed= oddKills,
             speed = meteorSpawner.GetMeteorSpeed(), 
-            self_killed= selfKills
+            self_killed= selfKills,
+            moving_time= player.GetMovingTime()
         };
 
         return JsonUtility.ToJson(data);

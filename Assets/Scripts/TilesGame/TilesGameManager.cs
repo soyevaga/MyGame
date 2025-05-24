@@ -61,6 +61,7 @@ public class TilesGameManager : GameManager
         public int clicks;
         public int level;
         public int restarts;
+        public int arrows_deleted;
     }
     private void Awake()
     {
@@ -378,15 +379,11 @@ public class TilesGameManager : GameManager
         if (isPaused)
         {
             pauseButton.GetComponent<Image>().sprite = pauseSprite;
-            main.Play();
-            Time.timeScale = 1;
             isPaused = false;
         }
         else
         {
             pauseButton.GetComponent<Image>().sprite = playSprite;
-            main.Pause();
-            Time.timeScale = 0;
             isPaused=true;
         }
     }
@@ -400,11 +397,16 @@ public class TilesGameManager : GameManager
             difficulty = difficulty,
             orden = PlayerPrefs.GetInt("CurrentGameNumber"),
             time = time,
-            clicks=clicks,
-            level=currentLevel/2+1,
-            restarts=totalRestarts
+            clicks = clicks,
+            level = currentLevel / 2 + 1,
+            restarts = totalRestarts,
+            arrows_deleted = GridManager.Instance.GetArrowsDeleted()
         };
 
         return JsonUtility.ToJson(data);
+    }
+    public bool GetPaused()
+    {
+        return isPaused;
     }
 }

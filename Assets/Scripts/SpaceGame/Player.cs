@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -8,9 +8,12 @@ public class Player : MonoBehaviour
     [SerializeField] private PoolGenerator pool = null;
     [SerializeField] private Transform projectilePoint = null;
     private int shoots;
+    private float movingTime;
+    private float startMovingTime;
     void Start()
     {
         shoots = 0;
+        movingTime = 0;
     }
     void Update()
     {
@@ -28,6 +31,16 @@ public class Player : MonoBehaviour
     }
     void FixedUpdate()
     {
+        if (Input.GetKeyDown("w") || Input.GetKeyDown("up")|| Input.GetKeyDown("s") || Input.GetKeyDown("down"))
+        {
+            startMovingTime = Time.time;
+        }
+        if (Input.GetKeyUp("w") || Input.GetKeyUp("up") || Input.GetKeyUp("s") || Input.GetKeyUp("down"))
+        {
+            movingTime += (Time.time - startMovingTime);
+        }
+
+
         if (Input.GetKey("up") || Input.GetKey("w"))
         {
             rb.MovePosition(transform.position + (-Vector3.right * speed * Time.fixedDeltaTime));
@@ -46,6 +59,10 @@ public class Player : MonoBehaviour
     public int GetShoots()
     {
         return shoots;
+    }
+    public float GetMovingTime()
+    {
+        return movingTime;
     }
 }
 

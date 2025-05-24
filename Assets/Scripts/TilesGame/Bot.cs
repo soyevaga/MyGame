@@ -22,7 +22,7 @@ public class Bot : MonoBehaviour
     }
     void Update()
     {
-        if (!isMoving && !isDead && !isPaused)
+        if (!isMoving && !isDead && !isPaused && !TilesGameManager.Instance.GetPaused())
         {
             //Checks if current tile is its goal
             if (GridManager.Instance.TileIsMyGoal(transform.position, myType))

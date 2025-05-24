@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using static TilesGameManager;
 using System;
 
 public class CardsGameManager : GameManager
@@ -42,6 +41,8 @@ public class CardsGameManager : GameManager
     private int exchangeNumber;
     private bool exchangeAdded;
     private HashSet<Card> selectedCards;
+    private HashSet<Card> visitedCards;
+    private int doubleChecks;
     private int selectedCardsCount;
     private int misses;
     private int currentMisses;
@@ -61,6 +62,7 @@ public class CardsGameManager : GameManager
         public int level;
         public int correct_pairs;
         public int wrong_pairs;
+        public int double_checks;
     }
     private void Awake()
     {
@@ -93,6 +95,7 @@ public class CardsGameManager : GameManager
         exchangeAdded = false;
         Time.timeScale = 1f;
         selectedCards = new HashSet<Card> ();
+        visitedCards = new HashSet<Card>();
         remainingTime = 0f;
         currentLevel = 1;
         misses = 0;
@@ -122,6 +125,9 @@ public class CardsGameManager : GameManager
         isChecking = true;
         Card[] array = selectedCards.ToArray();
         selectedCards.Clear();
+        if (visitedCards.Contains(array[0])) doubleChecks++; else visitedCards.Add(array[0]);
+        if(visitedCards.Contains(array[1])) doubleChecks++; else visitedCards.Add(array[1]);
+
         if (array[0].Equals(array[1]))
         {
             StartCoroutine(DeletePair(array[0], array[1]));
@@ -162,6 +168,8 @@ public class CardsGameManager : GameManager
     public void nextLevel()
     {
         correctPairs = 0;
+        visitedCards.Clear();
+        DBManager.Instance.GenerateGameJSON(GenerateJSON());
         if (remainingTime >= maxTime)
         {
             onGameOver.Invoke();
@@ -173,7 +181,6 @@ public class CardsGameManager : GameManager
     }
     private IEnumerator NewLevel()
     {
-        DBManager.Instance.GenerateGameJSON(GenerateJSON());
         isGenerating = true;
         if (currentLevel > 1)
         {
@@ -395,7 +402,8 @@ public class CardsGameManager : GameManager
             clicks = clicks,
             level = currentLevel,
             correct_pairs = totalCorrect,
-            wrong_pairs = misses
+            wrong_pairs = misses,
+            double_checks=doubleChecks
         };
 
         return JsonUtility.ToJson(data);

@@ -32,6 +32,11 @@ public class BotSpawner : MonoBehaviour
 
         for (int i = 0; i < typesNum; i++)
         {
+            while (TilesGameManager.Instance.GetPaused())
+            {
+                yield return new WaitForSeconds(0.2f);
+            }
+            
             GameObject newBot = pool.GetObject();
             if (newBot != null)
             {
@@ -40,8 +45,8 @@ public class BotSpawner : MonoBehaviour
                 bot.transform.position = initialPos;
                 bot.FirstMove();
             }
-            yield return new WaitForSeconds(3f*1/TilesGameManager.Instance.GetSpeedScale());
-            
+            yield return new WaitForSeconds(3f * 1 / TilesGameManager.Instance.GetSpeedScale());
+           
         }
     }
     public void DeleteBot(Bot bot)

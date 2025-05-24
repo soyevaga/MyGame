@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AudioSource click;
     [SerializeField] private AudioSource main;
     [SerializeField] private TMP_InputField ageInput;
+    [SerializeField] private TMP_InputField hoursInput;
     [SerializeField] private TextMeshProUGUI warningText;
     [SerializeField] private TMP_Dropdown birthdayDropdown;
     [SerializeField] private TMP_Dropdown genderDropdown;
@@ -37,13 +38,13 @@ public class UIManager : MonoBehaviour
     }
     public void GameScene()
     {
-        if (string.IsNullOrEmpty(ageInput.text))
+        if (string.IsNullOrEmpty(ageInput.text) || string.IsNullOrEmpty(hoursInput.text))
         {
             warningText.text = "Debes completar todos los campos";
         }
         else
         {
-            if (int.TryParse(ageInput.text, out int myYear) && myYear >= 1 && myYear <= 101)
+            if (int.TryParse(ageInput.text, out int myYear) && myYear >= 1 && myYear <= 101 && int.TryParse(hoursInput.text, out int hours) && hours >= 0 && hours <= 150)
             {
                 username = DateTime.Now.ToString("ddMMyyyyHHmmss");
                 PlayerPrefs.SetString("username", username);
@@ -112,7 +113,7 @@ public class UIManager : MonoBehaviour
                 }
                 
                 PlayerPrefs.SetInt("CurrentGameNumber", 1);
-                DBManager.Instance.GenerateUserJSON(gender, myYear);
+                DBManager.Instance.GenerateUserJSON(gender, myYear, hours);
                 main.Pause();
                 SceneManager.LoadScene(PlayerPrefs.GetString("Game1"));
             }
@@ -182,6 +183,25 @@ public class UIManager : MonoBehaviour
         {
             warningText.text = "Introduce una edad válida";
             ageInput.text = "";
+        }
+    }
+    public void ValidateHours(string input)
+    {
+        if (int.TryParse(input, out int hours))
+        {
+            if (hours >= 0 && hours <= 150)
+            {
+                warningText.text = "";
+            }
+            else
+            {
+                warningText.text = "Introduce un número válido";
+            }
+        }
+        else
+        {
+            warningText.text = "Introduce un número válido";
+            hoursInput.text = "";
         }
     }
     public void Click()

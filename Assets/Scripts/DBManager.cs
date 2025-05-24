@@ -24,6 +24,7 @@ public class DBManager : MonoBehaviour
         public string gender;
         public int age;
         public string birthday;
+        public int hours;
 
         public string game1;
         public string type1;
@@ -113,13 +114,15 @@ public class DBManager : MonoBehaviour
         // Configurar la solicitud (headers, etc.) si es necesario
         request.SetRequestHeader("Content-Type", "application/json");
 
+
         // Enviar la solicitud y esperar la respuesta
         yield return request.SendWebRequest();
 
         // Verificar si hay errores
-        if (request.result != UnityWebRequest.Result.Success)
+        while (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogWarning("Error: " + request.error);
+            // Enviar la solicitud y esperar la respuesta
+            yield return request.SendWebRequest();
         }
 
     }
@@ -144,24 +147,24 @@ public class DBManager : MonoBehaviour
         yield return request.SendWebRequest();
 
         // Verificar si hay errores
-        if (request.result != UnityWebRequest.Result.Success)
+        while(request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogWarning("Error: " + request.error);
+            // Enviar la solicitud y esperar la respuesta
+            yield return request.SendWebRequest();
         }
-        else
-        {
-            // La solicitud fue exitosa, puedes acceder a la respuesta
-            TokenResponse response = JsonUtility.FromJson<TokenResponse>(request.downloadHandler.text);
-            token = response.token;
-        }
+        
+        // La solicitud fue exitosa, puedes acceder a la respuesta
+        TokenResponse response = JsonUtility.FromJson<TokenResponse>(request.downloadHandler.text);
+        token = response.token;
+        
 
     }
-    public void GenerateUserJSON(string gender, int age)
+    public void GenerateUserJSON(string gender, int age, int hours)
     {
-        StartCoroutine(GenerateUser(gender, age));
+        StartCoroutine(GenerateUser(gender, age, hours));
     }
 
-    IEnumerator GenerateUser(string gender, int age)
+    IEnumerator GenerateUser(string gender, int age, int hours)
     {
         User newUser = new User
         {
@@ -169,6 +172,7 @@ public class DBManager : MonoBehaviour
             gender = gender,
             age = age,
             birthday = PlayerPrefs.GetString("birthday"),
+            hours= hours,
             game1 = PlayerPrefs.GetString("Game1"),
             type1 = PlayerPrefs.GetString("Type1"),
             game2 = PlayerPrefs.GetString("Game2"),

@@ -22,6 +22,7 @@ public class FormManager : MonoBehaviour
     {
         public string userID;
         public string game;
+        public string type;
         public int question1;
         public int question2;
         public int question3;
@@ -159,6 +160,7 @@ public class FormManager : MonoBehaviour
         {
             userID = PlayerPrefs.GetString("username"),
             game = gameName,
+            type = PlayerPrefs.GetString("Type" + gameNumber),
             question1 = int.Parse(toggleSelected[0].name.Replace("Toggle", "")),
             question2 = int.Parse(toggleSelected[1].name.Replace("Toggle", "")),
             question3= int.Parse(toggleSelected[2].name.Replace("Toggle", "")),
