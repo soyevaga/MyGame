@@ -473,18 +473,16 @@ public class GridManager : MonoBehaviour
                         }
                         else
                         {
+                            arrowsDeleted++;
+                            TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
                             if (TilesGameManager.Instance.GetButtonNumber(tileIndex) > 0)
                             {
-                                arrowsDeleted++;
-                                TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
                                 tilemap.SetTile(cellPosition, moveTiles[tileIndex]);
                                 return -1;
                             }
                             else
                             {
-                                arrowsDeleted++;
                                 tilemap.SetTile(cellPosition, mainTiles[0]);
-                                TilesGameManager.Instance.ChangeButtonNumber(moveTiles.IndexOf(tile), 1);
                             }
 
                         }                      

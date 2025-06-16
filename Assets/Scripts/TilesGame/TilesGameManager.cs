@@ -34,7 +34,7 @@ public class TilesGameManager : GameManager
     [SerializeField] private Sprite playSprite;
     [SerializeField] private Image tutorialImage;
     [SerializeField] private Sprite[] tutorialImages;
-    [SerializeField] private MyButton[] buttons;
+    [SerializeField] private TileButton[] buttons;
     [SerializeField] public UnityEvent onRestartLevel;
     [SerializeField] public UnityEvent onNextLevel;
     [SerializeField] public UnityEvent onGameOver;
@@ -121,7 +121,7 @@ public class TilesGameManager : GameManager
             {
                 clicks++;
                 Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                MyButton button = ToggledButton();
+                TileButton button = ToggledButton();
                 int id = -1;
                 if (button != null)
                 {
@@ -300,10 +300,10 @@ public class TilesGameManager : GameManager
         gameOverPanel.SetActive(false);
         gamePanel.SetActive(true);
     }
-    public MyButton ToggledButton()
+    public TileButton ToggledButton()
     {
-        MyButton toggled = null;
-        foreach (MyButton button in buttons)
+        TileButton toggled = null;
+        foreach (TileButton button in buttons)
         {
             if (button.IsToggled())
             {
@@ -319,7 +319,7 @@ public class TilesGameManager : GameManager
         Map[] maps = GridManager.Instance.GetMaps(); 
         int[] arrows = maps[currentLevel].GetArrows();
         int id = 0;
-        foreach(MyButton button in buttons)
+        foreach(TileButton button in buttons)
         {
             button.gameObject.SetActive(true);
             button.SetID(id);

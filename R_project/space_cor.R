@@ -1,0 +1,250 @@
+library(dplyr)
+library(MASS)
+
+space <- read.csv("space.csv", header = TRUE, sep = ",", encoding = "UTF-8")
+form <- read.csv("form.csv", header = TRUE, sep = ",", encoding = "UTF-8")
+
+# Juntar las tablas
+form_space <- form %>%
+  filter(game == "space") 
+
+form_space <- space %>%
+  left_join(form_space, by = "userID") %>%
+  filter(!is.na(question3))
+
+# Quedarse solo con la última repetición de cada usuario
+form_space <- form_space %>%
+  group_by(userID) %>%
+  slice_max(order_by = time, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+form_space_lineal <- subset(form_space, difficulty == "Lineal")
+form_space_exponencial <- subset(form_space, difficulty == "Exponencial")
+
+###################################################################
+data <- form_space_lineal
+data <- form_space_exponencial
+
+cor.test(data$question3, data$shoots, method = "pearson")
+cor.test(data$question6, data$shoots, method = "pearson")
+cor.test(data$question3, data$evens_killed, method = "pearson")
+cor.test(data$question6, data$evens_killed, method = "pearson")
+cor.test(data$question3, data$odds_killed, method = "pearson")
+cor.test(data$question6, data$odds_killed, method = "pearson")
+cor.test(data$question3, data$speed, method = "pearson")
+cor.test(data$question6, data$speed, method = "pearson")
+cor.test(data$question3, data$self_killed, method = "pearson")
+cor.test(data$question6, data$self_killed, method = "pearson")
+cor.test(data$question3, data$moving_time, method = "pearson")
+cor.test(data$question6, data$moving_time, method = "pearson")
+
+
+cor.test(data$question3, data$shoots, method = "spearman")
+cor.test(data$question6, data$shoots, method = "spearman")
+cor.test(data$question3, data$evens_killed, method = "spearman")
+cor.test(data$question6, data$evens_killed, method = "spearman")
+cor.test(data$question3, data$odds_killed, method = "spearman")
+cor.test(data$question6, data$odds_killed, method = "spearman")
+cor.test(data$question3, data$speed, method = "spearman")
+cor.test(data$question6, data$speed, method = "spearman")
+cor.test(data$question3, data$self_killed, method = "spearman")
+cor.test(data$question6, data$self_killed, method = "spearman")
+cor.test(data$question3, data$moving_time, method = "spearman")
+cor.test(data$question6, data$moving_time, method = "spearman")
+
+###########LINEAL###################################################
+data <- form_space_lineal
+# Correlación con shoots
+cor.test(data$question1, data$shoots, method = "pearson")
+cor.test(data$question2, data$shoots, method = "pearson")
+cor.test(data$question3, data$shoots, method = "pearson")
+cor.test(data$question4, data$shoots, method = "pearson")
+cor.test(data$question5, data$shoots, method = "pearson")
+cor.test(data$question6, data$shoots, method = "pearson")
+cor.test(data$question7, data$shoots, method = "pearson")
+cor.test(data$question8, data$shoots, method = "pearson")
+cor.test(data$question9, data$shoots, method = "pearson")
+cor.test(data$question10, data$shoots, method = "pearson")
+cor.test(data$question11, data$shoots, method = "pearson")
+cor.test(data$question12, data$shoots, method = "pearson")
+cor.test(data$question13, data$shoots, method = "pearson")
+cor.test(data$question14, data$shoots, method = "pearson")
+
+# Correlación con evens_killed
+cor.test(data$question1, data$evens_killed, method = "pearson")
+cor.test(data$question2, data$evens_killed, method = "pearson")
+cor.test(data$question3, data$evens_killed, method = "pearson")
+cor.test(data$question4, data$evens_killed, method = "pearson")
+cor.test(data$question5, data$evens_killed, method = "pearson")
+cor.test(data$question6, data$evens_killed, method = "pearson")
+cor.test(data$question7, data$evens_killed, method = "pearson")
+cor.test(data$question8, data$evens_killed, method = "pearson")
+cor.test(data$question9, data$evens_killed, method = "pearson")
+cor.test(data$question10, data$evens_killed, method = "pearson")
+cor.test(data$question11, data$evens_killed, method = "pearson")
+cor.test(data$question12, data$evens_killed, method = "pearson")
+cor.test(data$question13, data$evens_killed, method = "pearson")
+cor.test(data$question14, data$evens_killed, method = "pearson")
+
+# Correlación con odds_killed
+cor.test(data$question1, data$odds_killed, method = "pearson")
+cor.test(data$question2, data$odds_killed, method = "pearson")
+cor.test(data$question3, data$odds_killed, method = "pearson")
+cor.test(data$question4, data$odds_killed, method = "pearson")
+cor.test(data$question5, data$odds_killed, method = "pearson")
+cor.test(data$question6, data$odds_killed, method = "pearson")
+cor.test(data$question7, data$odds_killed, method = "pearson")
+cor.test(data$question8, data$odds_killed, method = "pearson")
+cor.test(data$question9, data$odds_killed, method = "pearson")
+cor.test(data$question10, data$odds_killed, method = "pearson")
+cor.test(data$question11, data$odds_killed, method = "pearson")
+cor.test(data$question12, data$odds_killed, method = "pearson")
+cor.test(data$question13, data$odds_killed, method = "pearson")
+cor.test(data$question14, data$odds_killed, method = "pearson")
+
+# Correlación con speed
+cor.test(data$question1, data$speed, method = "pearson")
+cor.test(data$question2, data$speed, method = "pearson")
+cor.test(data$question3, data$speed, method = "pearson")
+cor.test(data$question4, data$speed, method = "pearson")
+cor.test(data$question5, data$speed, method = "pearson")
+cor.test(data$question6, data$speed, method = "pearson")
+cor.test(data$question7, data$speed, method = "pearson")
+cor.test(data$question8, data$speed, method = "pearson")
+cor.test(data$question9, data$speed, method = "pearson")
+cor.test(data$question10, data$speed, method = "pearson")
+cor.test(data$question11, data$speed, method = "pearson")
+cor.test(data$question12, data$speed, method = "pearson")
+cor.test(data$question13, data$speed, method = "pearson")
+cor.test(data$question14, data$speed, method = "pearson")
+
+# Correlación con self_killed
+cor.test(data$question1, data$self_killed, method = "pearson")
+cor.test(data$question2, data$self_killed, method = "pearson")
+cor.test(data$question3, data$self_killed, method = "pearson")
+cor.test(data$question4, data$self_killed, method = "pearson")
+cor.test(data$question5, data$self_killed, method = "pearson")
+cor.test(data$question6, data$self_killed, method = "pearson")
+cor.test(data$question7, data$self_killed, method = "pearson")
+cor.test(data$question8, data$self_killed, method = "pearson")
+cor.test(data$question9, data$self_killed, method = "pearson")
+cor.test(data$question10, data$self_killed, method = "pearson")
+cor.test(data$question11, data$self_killed, method = "pearson")
+cor.test(data$question12, data$self_killed, method = "pearson")
+cor.test(data$question13, data$self_killed, method = "pearson")
+cor.test(data$question14, data$self_killed, method = "pearson")
+
+# Correlación con moving_time
+cor.test(data$question1, data$moving_time, method = "pearson")
+cor.test(data$question2, data$moving_time, method = "pearson")
+cor.test(data$question3, data$moving_time, method = "pearson")
+cor.test(data$question4, data$moving_time, method = "pearson")
+cor.test(data$question5, data$moving_time, method = "pearson")
+cor.test(data$question6, data$moving_time, method = "pearson")
+cor.test(data$question7, data$moving_time, method = "pearson")
+cor.test(data$question8, data$moving_time, method = "pearson")
+cor.test(data$question9, data$moving_time, method = "pearson")
+cor.test(data$question10, data$moving_time, method = "pearson")
+cor.test(data$question11, data$moving_time, method = "pearson")
+cor.test(data$question12, data$moving_time, method = "pearson")
+cor.test(data$question13, data$moving_time, method = "pearson")
+cor.test(data$question14, data$moving_time, method = "pearson")
+
+###########EXPONENCIAL###################################################
+data <- form_space_exponencial
+# Correlación con shoots
+cor.test(data$question1, data$shoots, method = "pearson")
+cor.test(data$question2, data$shoots, method = "pearson")
+cor.test(data$question3, data$shoots, method = "pearson")
+cor.test(data$question4, data$shoots, method = "pearson")
+cor.test(data$question5, data$shoots, method = "pearson")
+cor.test(data$question6, data$shoots, method = "pearson")
+cor.test(data$question7, data$shoots, method = "pearson")
+cor.test(data$question8, data$shoots, method = "pearson")
+cor.test(data$question9, data$shoots, method = "pearson")
+cor.test(data$question10, data$shoots, method = "pearson")
+cor.test(data$question11, data$shoots, method = "pearson")
+cor.test(data$question12, data$shoots, method = "pearson")
+cor.test(data$question13, data$shoots, method = "pearson")
+cor.test(data$question14, data$shoots, method = "pearson")
+
+# Correlación con evens_killed
+cor.test(data$question1, data$evens_killed, method = "pearson")
+cor.test(data$question2, data$evens_killed, method = "pearson")
+cor.test(data$question3, data$evens_killed, method = "pearson")
+cor.test(data$question4, data$evens_killed, method = "pearson")
+cor.test(data$question5, data$evens_killed, method = "pearson")
+cor.test(data$question6, data$evens_killed, method = "pearson")
+cor.test(data$question7, data$evens_killed, method = "pearson")
+cor.test(data$question8, data$evens_killed, method = "pearson")
+cor.test(data$question9, data$evens_killed, method = "pearson")
+cor.test(data$question10, data$evens_killed, method = "pearson")
+cor.test(data$question11, data$evens_killed, method = "pearson")
+cor.test(data$question12, data$evens_killed, method = "pearson")
+cor.test(data$question13, data$evens_killed, method = "pearson")
+cor.test(data$question14, data$evens_killed, method = "pearson")
+
+# Correlación con odds_killed
+cor.test(data$question1, data$odds_killed, method = "pearson")
+cor.test(data$question2, data$odds_killed, method = "pearson")
+cor.test(data$question3, data$odds_killed, method = "pearson")
+cor.test(data$question4, data$odds_killed, method = "pearson")
+cor.test(data$question5, data$odds_killed, method = "pearson")
+cor.test(data$question6, data$odds_killed, method = "pearson")
+cor.test(data$question7, data$odds_killed, method = "pearson")
+cor.test(data$question8, data$odds_killed, method = "pearson")
+cor.test(data$question9, data$odds_killed, method = "pearson")
+cor.test(data$question10, data$odds_killed, method = "pearson")
+cor.test(data$question11, data$odds_killed, method = "pearson")
+cor.test(data$question12, data$odds_killed, method = "pearson")
+cor.test(data$question13, data$odds_killed, method = "pearson")
+cor.test(data$question14, data$odds_killed, method = "pearson")
+
+# Correlación con speed
+cor.test(data$question1, data$speed, method = "pearson")
+cor.test(data$question2, data$speed, method = "pearson")
+cor.test(data$question3, data$speed, method = "pearson")
+cor.test(data$question4, data$speed, method = "pearson")
+cor.test(data$question5, data$speed, method = "pearson")
+cor.test(data$question6, data$speed, method = "pearson")
+cor.test(data$question7, data$speed, method = "pearson")
+cor.test(data$question8, data$speed, method = "pearson")
+cor.test(data$question9, data$speed, method = "pearson")
+cor.test(data$question10, data$speed, method = "pearson")
+cor.test(data$question11, data$speed, method = "pearson")
+cor.test(data$question12, data$speed, method = "pearson")
+cor.test(data$question13, data$speed, method = "pearson")
+cor.test(data$question14, data$speed, method = "pearson")
+
+# Correlación con self_killed
+cor.test(data$question1, data$self_killed, method = "pearson")
+cor.test(data$question2, data$self_killed, method = "pearson")
+cor.test(data$question3, data$self_killed, method = "pearson")
+cor.test(data$question4, data$self_killed, method = "pearson")
+cor.test(data$question5, data$self_killed, method = "pearson")
+cor.test(data$question6, data$self_killed, method = "pearson")
+cor.test(data$question7, data$self_killed, method = "pearson")
+cor.test(data$question8, data$self_killed, method = "pearson")
+cor.test(data$question9, data$self_killed, method = "pearson")
+cor.test(data$question10, data$self_killed, method = "pearson")
+cor.test(data$question11, data$self_killed, method = "pearson")
+cor.test(data$question12, data$self_killed, method = "pearson")
+cor.test(data$question13, data$self_killed, method = "pearson")
+cor.test(data$question14, data$self_killed, method = "pearson")
+
+# Correlación con moving_time
+cor.test(data$question1, data$moving_time, method = "pearson")
+cor.test(data$question2, data$moving_time, method = "pearson")
+cor.test(data$question3, data$moving_time, method = "pearson")
+cor.test(data$question4, data$moving_time, method = "pearson")
+cor.test(data$question5, data$moving_time, method = "pearson")
+cor.test(data$question6, data$moving_time, method = "pearson")
+cor.test(data$question7, data$moving_time, method = "pearson")
+cor.test(data$question8, data$moving_time, method = "pearson")
+cor.test(data$question9, data$moving_time, method = "pearson")
+cor.test(data$question10, data$moving_time, method = "pearson")
+cor.test(data$question11, data$moving_time, method = "pearson")
+cor.test(data$question12, data$moving_time, method = "pearson")
+cor.test(data$question13, data$moving_time, method = "pearson")
+cor.test(data$question14, data$moving_time, method = "pearson")
+

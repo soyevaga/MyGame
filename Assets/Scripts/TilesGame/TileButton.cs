@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MyButton : MonoBehaviour
+public class TileButton : MonoBehaviour
 {
     private bool isToggled;
     private int id;
@@ -21,7 +21,7 @@ public class MyButton : MonoBehaviour
     }
     public void ButtonColor()
     {
-        MyButton toggled = TilesGameManager.Instance.ToggledButton();
+        TileButton toggled = TilesGameManager.Instance.ToggledButton();
         if (toggled==this)
         {
             SetToggled(false);
